@@ -258,7 +258,7 @@ use tinytga::Tga;
 
 let tga: Tga<Rgb888> = Tga::from_slice(include_bytes!(concat!(
     env!("CARGO_MANIFEST_DIR"),
-    "/../simulator/examples/assets/rust-pride.tga"
+    "/examples/assets/rust-pride.tga"
 )))
 .unwrap();
 
