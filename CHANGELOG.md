@@ -6,6 +6,10 @@
 
 ## [Unreleased] - ReleaseDate
 
+## [Unreleased - `embedded-graphics` repository] - ReleaseDate
+
+> Note: PR numbers from this point onwards are from the old `embedded-graphics/embedded-graphics` repository. New PR numbers above this note refer to PRs in the `embedded-graphics/tinybmp` repository.
+
 ### Added
 
 - [#298](https://github.com/embedded-graphics/embedded-graphics/pull/298) Added the `with-sdl` option (enabled by default) to allow optionally disabling SDL2 support.
@@ -51,6 +55,7 @@
 
 <!-- next-url -->
 
-[unreleased]: https://github.com/embedded-graphics/embedded-graphics-simulator/compare/embedded-graphics-simulator-v0.2.0...HEAD
+[unreleased]: https://github.com/embedded-graphics/simulator/compare/v0.2.0...HEAD
+[unreleased - `embedded-graphics` repository]: https://github.com/embedded-graphics/embedded-graphics/compare/embedded-graphics-simulator-v0.2.0...HEAD
 [0.2.0]: https://github.com/embedded-graphics/embedded-graphics-simulator/compare/embedded-graphics-simulator-v0.2.0-beta.2...embedded-graphics-simulator-v0.2.0
 [0.2.0-beta.2]: https://github.com/embedded-graphics/embedded-graphics/compare/embedded-graphics-simulator-v0.2.0-alpha.1...embedded-graphics-simulator-v0.2.0-beta.2
