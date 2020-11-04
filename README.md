@@ -1,6 +1,6 @@
 # Embedded graphics simulator
 
-[![Build Status](https://circleci.com/gh/embedded-graphics/embedded-graphics/tree/master.svg?style=shield)](https://circleci.com/gh/embedded-graphics/embedded-graphics/tree/master)
+[![Build Status](https://circleci.com/gh/embedded-graphics/simulator/tree/master.svg?style=shield)](https://circleci.com/gh/embedded-graphics/simulator/tree/master)
 [![Crates.io](https://img.shields.io/crates/v/embedded-graphics-simulator.svg)](https://crates.io/crates/embedded-graphics-simulator)
 [![Docs.rs](https://docs.rs/embedded-graphics-simulator/badge.svg)](https://docs.rs/embedded-graphics-simulator)
 [![embedded-graphics on Matrix](https://img.shields.io/matrix/rust-embedded-graphics:matrix.org)](https://matrix.to/#/#rust-embedded-graphics:matrix.org)
