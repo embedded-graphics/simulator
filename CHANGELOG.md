@@ -56,6 +56,6 @@
 <!-- next-url -->
 
 [unreleased]: https://github.com/embedded-graphics/simulator/compare/after-split...HEAD
-[unreleased - `embedded-graphics` repository]: https://github.com/embedded-graphics/embedded-graphics/compare/embedded-graphics-simulator-v0.2.0...HEAD
+[unreleased - `embedded-graphics` repository]: https://github.com/embedded-graphics/embedded-graphics/compare/embedded-graphics-simulator-v0.2.0...before-split
 [0.2.0]: https://github.com/embedded-graphics/embedded-graphics-simulator/compare/embedded-graphics-simulator-v0.2.0-beta.2...embedded-graphics-simulator-v0.2.0
 [0.2.0-beta.2]: https://github.com/embedded-graphics/embedded-graphics/compare/embedded-graphics-simulator-v0.2.0-alpha.1...embedded-graphics-simulator-v0.2.0-beta.2
