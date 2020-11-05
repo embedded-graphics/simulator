@@ -57,13 +57,11 @@ criterion = { version = "0.3.0", default-features = false }
 # version = "0.2.2"
 # TODO: Remove when a new e-g alpha is released
 git = "https://github.com/embedded-graphics/tinybmp"
-branch = "new-repo"
 
 [dependencies.tinytga]
 # version = "0.3.2"
 # TODO: Remove when a new e-g alpha is released
 git = "https://github.com/embedded-graphics/tinytga"
-branch = "new-repo"
 
 [features]
 default = [ "with-sdl" ]
