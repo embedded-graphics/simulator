@@ -19,23 +19,6 @@ exclude = [
 [badges]
 circle-ci = { repository = "embedded-graphics/simulator", branch = "master" }
 
-[[bench]]
-harness = false
-name = "primitives"
-[[bench]]
-harness = false
-name = "primitives_fixed_point"
-required-features = ["fixed_point"]
-[[bench]]
-harness = false
-name = "fonts"
-[[bench]]
-harness = false
-name = "image"
-[[bench]]
-harness = false
-name = "contains"
-
 [dependencies]
 image = "0.23.0"
 
@@ -50,7 +33,6 @@ git = "https://github.com/embedded-graphics/embedded-graphics"
 
 [dev-dependencies]
 chrono = "0.4.10"
-criterion = { version = "0.3.0", default-features = false }
 
 [dependencies.tinybmp]
 # version = "0.2.2"
