@@ -11,11 +11,7 @@ ci_build_image := "jamwaffles/circleci-embedded-graphics:1.40.0-cimg"
 # Building
 #----------
 
-build: check-formatting test test-all build-benches build-simulator check-drawing-examples check-readme check-links
-
-# Build the benches
-build-benches:
-    cargo bench --no-run
+build: check-formatting test test-all build-simulator check-drawing-examples check-readme check-links
 
 # Build the simulator
 build-simulator:
