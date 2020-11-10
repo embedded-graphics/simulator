@@ -46,26 +46,38 @@ fn draw(
     .into_styled(TextStyle::new(Font6x8, Rgb888::MAGENTA))
     .draw(display)?;
 
-    let t = Triangle::new(Point::new(80, 150), Point::new(120, 80), position);
+    let offset = StrokeOffset::None;
+    let p1 = Point::new(80, 150);
+    let p2 = Point::new(120, 80);
+    let p3 = position;
 
-    let sorted = t.sorted_clockwise();
+    let t = Triangle::new(p1, p2, p3).sorted_clockwise();
 
-    let lines = [
-        Line::new(sorted.p1, sorted.p2),
-        Line::new(sorted.p2, sorted.p3),
-        Line::new(sorted.p3, sorted.p1),
+    let joins = [
+        LineJoin::from_points(t.p3, t.p1, t.p2, stroke_width, offset),
+        LineJoin::from_points(t.p1, t.p2, t.p3, stroke_width, offset),
+        LineJoin::from_points(t.p2, t.p3, t.p1, stroke_width, offset),
     ];
 
-    lines.iter().enumerate().try_for_each(|(idx, line)| {
-        let (l, r) = line.extents(stroke_width, StrokeOffset::None);
+    let sides = [
+        ThickSegment::new(joins[0], joins[1]),
+        ThickSegment::new(joins[1], joins[2]),
+        ThickSegment::new(joins[2], joins[0]),
+    ];
 
-        l.into_styled(PrimitiveStyle::with_stroke(Rgb888::CSS_CORAL, 1))
+    sides.iter().enumerate().try_for_each(|(idx, side)| {
+        // Outside is always left side of line due to clockwise sorting.
+        let (inside, outside) = side.edges();
+
+        outside
+            .into_styled(PrimitiveStyle::with_stroke(Rgb888::CSS_CORAL, 1))
             .draw(display)?;
 
-        r.into_styled(PrimitiveStyle::with_stroke(Rgb888::CSS_DEEP_SKY_BLUE, 1))
+        inside
+            .into_styled(PrimitiveStyle::with_stroke(Rgb888::CSS_DEEP_SKY_BLUE, 1))
             .draw(display)?;
 
-        Text::new(&format!("P{}", idx + 1), line.start)
+        Text::new(&format!("P{}", idx + 1), outside.start)
             .into_styled(TextStyle::new(Font6x8, Rgb888::CSS_YELLOW_GREEN))
             .draw(display)
     })?;
