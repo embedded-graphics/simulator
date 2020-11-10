@@ -69,6 +69,13 @@ fn draw(
         // Outside is always left side of line due to clockwise sorting.
         let (inside, outside) = side.edges();
 
+        // Draw bevel filler if required
+        if let Some(filler) = side.start_join.filler_line() {
+            filler
+                .into_styled(PrimitiveStyle::with_stroke(Rgb888::CSS_DEEP_PINK, 1))
+                .draw(display)?;
+        }
+
         outside
             .into_styled(PrimitiveStyle::with_stroke(Rgb888::CSS_CORAL, 1))
             .draw(display)?;
