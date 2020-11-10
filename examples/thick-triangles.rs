@@ -24,27 +24,18 @@ use sdl2::keyboard::Keycode;
 
 fn draw(
     display: &mut SimulatorDisplay<Rgb888>,
+    mouse_pos: Point,
     position: Point,
     stroke_width: u32,
 ) -> Result<(), core::convert::Infallible> {
     display.clear(Rgb888::BLACK)?;
 
-    let start = Point::new(
-        display.size().width as i32 / 2,
-        display.size().height as i32 / 2,
-    );
-
-    Text::new(
-        &format!(
-            "W: {}\nDX {}, DY {}",
-            stroke_width,
-            position.x - start.x,
-            position.y - start.y
-        ),
-        Point::zero(),
+    let scanline = Line::new(
+        Point::new(0, mouse_pos.y),
+        Point::new(display.size().width as i32, mouse_pos.y),
     )
-    .into_styled(TextStyle::new(Font6x8, Rgb888::MAGENTA))
-    .draw(display)?;
+    .into_styled(PrimitiveStyle::with_stroke(Rgb888::BLUE, 1))
+    .draw(display);
 
     let offset = StrokeOffset::None;
     let p1 = Point::new(80, 150);
@@ -121,7 +112,7 @@ fn main() -> Result<(), core::convert::Infallible> {
     let mut stroke_width = 5;
     let mut mouse_down = false;
 
-    draw(&mut display, position, stroke_width)?;
+    draw(&mut display, position, position, stroke_width)?;
 
     'running: loop {
         window.update(&display);
@@ -136,20 +127,21 @@ fn main() -> Result<(), core::convert::Infallible> {
                         _ => (),
                     }
 
-                    draw(&mut display, position, stroke_width)?;
+                    draw(&mut display, position, position, stroke_width)?;
                 }
                 SimulatorEvent::MouseButtonDown { point, .. } => {
                     mouse_down = true;
                     position = point;
 
-                    draw(&mut display, position, stroke_width)?;
+                    draw(&mut display, point, position, stroke_width)?;
                 }
                 SimulatorEvent::MouseButtonUp { .. } => mouse_down = false,
                 SimulatorEvent::MouseMove { point, .. } => {
                     if mouse_down {
                         position = point;
-                        draw(&mut display, position, stroke_width)?;
                     }
+
+                    draw(&mut display, point, position, stroke_width)?;
                 }
                 _ => {}
             }
