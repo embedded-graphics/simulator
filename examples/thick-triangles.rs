@@ -59,6 +59,8 @@ fn draw(
         LineJoin::from_points(t.p2, t.p3, t.p1, stroke_width, offset),
     ];
 
+    let is_degenerate = joins.iter().any(|j| j.is_degenerate());
+
     let sides = [
         ThickSegment::new(joins[0], joins[1]),
         ThickSegment::new(joins[1], joins[2]),
@@ -77,12 +79,21 @@ fn draw(
         }
 
         outside
-            .into_styled(PrimitiveStyle::with_stroke(Rgb888::CSS_CORAL, 1))
+            .into_styled(PrimitiveStyle::with_stroke(
+                if !is_degenerate {
+                    Rgb888::CSS_CORAL
+                } else {
+                    Rgb888::CSS_DARK_ORANGE
+                },
+                1,
+            ))
             .draw(display)?;
 
-        inside
-            .into_styled(PrimitiveStyle::with_stroke(Rgb888::CSS_DEEP_SKY_BLUE, 1))
-            .draw(display)?;
+        if !is_degenerate {
+            inside
+                .into_styled(PrimitiveStyle::with_stroke(Rgb888::CSS_DEEP_SKY_BLUE, 1))
+                .draw(display)?;
+        }
 
         Text::new(&format!("P{}", idx + 1), outside.start)
             .into_styled(TextStyle::new(Font6x8, Rgb888::CSS_YELLOW_GREEN))
