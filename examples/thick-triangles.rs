@@ -33,9 +33,11 @@ fn draw(
     let scanline = Line::new(
         Point::new(0, mouse_pos.y),
         Point::new(display.size().width as i32, mouse_pos.y),
-    )
-    .into_styled(PrimitiveStyle::with_stroke(Rgb888::BLUE, 1))
-    .draw(display);
+    );
+
+    scanline
+        .into_styled(PrimitiveStyle::with_stroke(Rgb888::BLUE, 1))
+        .draw(display)?;
 
     let offset = StrokeOffset::None;
     let p1 = Point::new(80, 150);
@@ -52,13 +54,11 @@ fn draw(
 
     let is_degenerate = joins.iter().any(|j| j.is_degenerate());
 
-    let sides = [
-        ThickSegment::new(joins[0], joins[1]),
-        ThickSegment::new(joins[1], joins[2]),
-        ThickSegment::new(joins[2], joins[0]),
-    ];
+    let points = [t.p1, t.p2, t.p3];
 
-    sides.iter().enumerate().try_for_each(|(idx, side)| {
+    let it = ClosedThickSegmentIter::new(&points, stroke_width, StrokeOffset::None);
+
+    it.enumerate().try_for_each(|(idx, side)| {
         // Outside is always left side of line due to clockwise sorting.
         let (inside, outside) = side.edges();
 
