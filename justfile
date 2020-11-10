@@ -1,4 +1,3 @@
-
 target_dir := "target"
 doc_dir := "doc"
 doc_assets_dir := doc_dir + "/assets"
@@ -51,7 +50,7 @@ generate-readme: (_build-readme)
     cp {{target_dir}}/README.md README.md
 
 # Check README.md for a single crate
-check-readme: (_build-readme)
+@check-readme: (_build-readme)
     diff -q {{target_dir}}/README.md README.md || ( \
         echo -e "\033[1;31mError:\033[0m README.md needs to be regenerated."; \
         echo -e "       Run 'just generate-readme' to regenerate.\n"; \
@@ -108,7 +107,7 @@ generate-example-screenshot example:
 @generate-example-screenshots:
     #!/usr/bin/env bash
     set -e
-    for example in simulator/examples/*.rs; do \
+    for example in examples/*.rs; do \
         just generate-example-screenshot $(basename "$example" .rs); \
     done
 
