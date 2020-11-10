@@ -34,6 +34,7 @@ fn draw(
         Point::new(0, mouse_pos.y),
         Point::new(display.size().width as i32, mouse_pos.y),
     );
+    let scanline_y = scanline.start.y;
 
     scanline
         .into_styled(PrimitiveStyle::with_stroke(Rgb888::BLUE, 1))
@@ -56,9 +57,9 @@ fn draw(
 
     let points = [t.p1, t.p2, t.p3];
 
-    let it = ClosedThickSegmentIter::new(&points, stroke_width, StrokeOffset::None);
+    let mut it = ClosedThickSegmentIter::new(&points, stroke_width, StrokeOffset::None);
 
-    it.enumerate().try_for_each(|(idx, side)| {
+    it.clone().enumerate().try_for_each(|(idx, side)| {
         // Outside is always left side of line due to clockwise sorting.
         let (inside, outside) = side.edges();
 
@@ -90,6 +91,13 @@ fn draw(
             .into_styled(TextStyle::new(Font6x8, Rgb888::CSS_YELLOW_GREEN))
             .draw(display)
     })?;
+
+    // Scanline intersections
+    it.filter_map(|segment| segment.intersection(scanline_y))
+        .try_for_each(|line| {
+            line.into_styled(PrimitiveStyle::with_stroke(Rgb888::MAGENTA, 1))
+                .draw(display)
+        })?;
 
     // t.into_styled(PrimitiveStyle::with_stroke(
     //     Rgb888::new(0x80, 0xf2, 0x91),
