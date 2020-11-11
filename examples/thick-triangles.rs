@@ -144,11 +144,11 @@ fn draw(
 
     let it = ClosedThickSegmentIter::new(&points, stroke_width, stroke_alignment.as_offset());
 
-    // let inner_t = Triangle::new(
-    //     joins[0].first_edge_end.right,
-    //     joins[1].first_edge_end.right,
-    //     joins[2].first_edge_end.right,
-    // );
+    let inner_t = Triangle::new(
+        joins[0].first_edge_end.right,
+        joins[1].first_edge_end.right,
+        joins[2].first_edge_end.right,
+    );
 
     // inner_t
     //     .into_styled(PrimitiveStyle::with_stroke(Rgb888::YELLOW, 1))
@@ -191,16 +191,30 @@ fn draw(
             ))
             .draw(display)?;
 
-        if !is_collapsed {
-            inside
-                .into_styled(PrimitiveStyle::with_stroke(Rgb888::CSS_DEEP_SKY_BLUE, 1))
-                .draw(display)?;
-        }
+        // if !is_collapsed {
+        //     inside
+        //         .into_styled(PrimitiveStyle::with_stroke(Rgb888::CSS_DEEP_SKY_BLUE, 1))
+        //         .draw(display)?;
+        // }
 
         Text::new(&format!("P{}", idx + 1), points[idx])
             .into_styled(TextStyle::new(Font6x8, Rgb888::CSS_YELLOW_GREEN))
             .draw(display)
     })?;
+
+    // Inside fill scanline
+    {
+        if !is_collapsed {
+            inner_t
+                .into_styled(PrimitiveStyle::with_fill(Rgb888::new(0x80, 0xf2, 0x91)))
+                .draw(display)?;
+
+            if let Some(l) = inner_t.scanline_intersection(scanline_y) {
+                l.into_styled(PrimitiveStyle::with_stroke(Rgb888::RED, 1))
+                    .draw(display)?;
+            }
+        }
+    }
 
     // Scanline intersections
     it.filter_map(|segment| segment.intersection(scanline_y))
