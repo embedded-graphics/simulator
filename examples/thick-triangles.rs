@@ -100,9 +100,9 @@ fn draw(
     let p2 = Point::new(120, 80);
     let p3 = position;
 
-    let points = [p1, p2, p3];
-
     let t = Triangle::new(p1, p2, p3).sorted_clockwise();
+
+    let points = [t.p1, t.p2, t.p3];
 
     let joins = [
         LineJoin::from_points(t.p3, t.p1, t.p2, stroke_width, stroke_alignment.as_offset()),
@@ -110,17 +110,39 @@ fn draw(
         LineJoin::from_points(t.p2, t.p3, t.p1, stroke_width, stroke_alignment.as_offset()),
     ];
 
-    let is_collapsed = joins.iter().any(|j| j.is_degenerate());
+    let is_collapsed = joins.iter().enumerate().any(|(i, j)| {
+        // Inside point of the joint. The triangle is sorted clockwise, so this is always the right.
+        let inner_point = j.first_edge_end.right;
 
-    Text::new(&format!("{:?}", is_collapsed), Point::new(0, 8))
-        .into_styled(TextStyle::new(Font6x8, Rgb888::GREEN))
-        .draw(display)?;
+        // Find opposite edge to the given point.
+        let opposite = {
+            let start = points[(i + 1) % 3];
+            let end = points[(i + 2) % 3];
 
-    let points = [t.p1, t.p2, t.p3];
+            // Get right side extent (triangle is sorted clockwise, remember)
+            Line::new(start, end)
+                .extents(stroke_width, stroke_alignment.as_offset())
+                .1
+        };
+
+        // If the inner point is to the left of the opposite side line, the triangle edges self-
+        // intersect, so the triangle is collapsed.
+        opposite.side(inner_point) >= 0
+    });
+
+    let should_use_normal_iter = is_collapsed && stroke_alignment == StrokeAlignment::Inside;
+
+    Text::new(
+        &format!(
+            "{:?}\nUse normal? {:?}",
+            is_collapsed, should_use_normal_iter
+        ),
+        Point::new(0, 8),
+    )
+    .into_styled(TextStyle::new(Font6x8, Rgb888::GREEN))
+    .draw(display)?;
 
     let it = ClosedThickSegmentIter::new(&points, stroke_width, stroke_alignment.as_offset());
-
-    println!("---");
 
     // let inner_t = Triangle::new(
     //     joins[0].first_edge_end.right,
@@ -186,6 +208,45 @@ fn draw(
             line.into_styled(PrimitiveStyle::with_stroke(Rgb888::MAGENTA, 1))
                 .draw(display)
         })?;
+
+    // {
+    //     // Inside point of each intersection
+    //     joins
+    //         .iter()
+    //         .enumerate()
+    //         .map(|(i, j)| {
+    //             let p = j.first_edge_end.right;
+
+    //             let opp_start = points[(i + 1) % 3];
+    //             let opp_end = points[(i + 2) % 3];
+
+    //             (
+    //                 p,
+    //                 Line::new(opp_start, opp_end)
+    //                     .extents(stroke_width, stroke_alignment.as_offset())
+    //                     .1,
+    //             )
+    //         })
+    //         .try_for_each(|(p, l)| {
+    //             let is_degenerate = l.side(p) >= 0;
+
+    //             // let colour = match l.side(p) {
+    //             //     value if value < 0 => Rgb888::RED,
+    //             //     value if value == 0 => Rgb888::YELLOW,
+    //             //     value if value > 0 => Rgb888::BLUE,
+    //             //     _ => unreachable!(),
+    //             // };
+
+    //             let colour = if is_degenerate {
+    //                 Rgb888::RED
+    //             } else {
+    //                 Rgb888::GREEN
+    //             };
+
+    //             l.into_styled(PrimitiveStyle::with_stroke(colour, 1))
+    //                 .draw(display)
+    //         })?;
+    // }
 
     // t.into_styled(PrimitiveStyle::with_stroke(
     //     Rgb888::new(0x80, 0xf2, 0x91),
