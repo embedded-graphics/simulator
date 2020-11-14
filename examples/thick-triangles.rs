@@ -14,6 +14,7 @@ use embedded_graphics::{
     pixelcolor::Rgb888,
     prelude::*,
     primitives::line::StrokeOffset,
+    primitives::triangle::ScanlineIntersections,
     primitives::*,
     style::PrimitiveStyleBuilder,
     style::StrokeAlignment,
@@ -41,257 +42,329 @@ fn draw(
 ) -> Result<(), core::convert::Infallible> {
     display.clear(Rgb888::BLACK)?;
 
+    println!("---");
+
+    let style = PrimitiveStyleBuilder::new()
+        .stroke_alignment(stroke_alignment)
+        .stroke_width(stroke_width)
+        .stroke_color(Rgb888::CSS_ORANGE)
+        // .fill_color(Rgb888::CSS_GREEN)
+        .build();
+
+    let p1 = Point::new(80, 150);
+    let p2 = Point::new(120, 80);
+    let p3 = position;
+
+    // let p1 = Point::new(10, 10);
+    // let p2 = Point::new(30, 20);
+    // let p3 = Point::new(20, 25);
+
     {
-        let p1 = Point::new(80, 150);
-        let p2 = Point::new(120, 80);
-        let p3 = position;
-
         let t = Triangle::new(p1, p2, p3);
+        // let t = Triangle::new(Point::new(10, 10), Point::new(30, 20), Point::new(20, 25));
 
-        t.into_styled(
-            PrimitiveStyleBuilder::new()
-                .stroke_alignment(stroke_alignment)
-                .stroke_width(stroke_width)
-                .stroke_color(Rgb888::CSS_ORANGE)
-                .fill_color(Rgb888::CSS_GREEN)
-                .build(),
+        t.into_styled(style).draw(display)?;
+
+        Text::new(
+            &format!("{:?}\nStroke {}", stroke_alignment, stroke_width),
+            Point::zero(),
         )
+        .into_styled(TextStyle::new(Font6x8, Rgb888::GREEN))
         .draw(display)?;
 
-        Text::new(&format!("{:?}", stroke_alignment), Point::zero())
-            .into_styled(TextStyle::new(Font6x8, Rgb888::GREEN))
-            .draw(display)?;
+        println!("{:?}", mouse_pos);
     }
 
+    //
+    // ---
+    //
+
     // {
+    //     let t = Triangle::new(p1, p2, p3);
 
-    // // {
-    // //     let l1 = Line::new(Point::new(150, 50), Point::new(100, 100));
-    // //     let l2 = Line::new(Point::new(100, 100), position);
-
-    // //     l1.into_styled(PrimitiveStyle::with_stroke(Rgb888::RED, 1))
-    // //         .draw(display)?;
-    // //     l2.into_styled(PrimitiveStyle::with_stroke(Rgb888::GREEN, 1))
-    // //         .draw(display)?;
-
-    // //     let (e_l1_l, e_l1_r) = l1.extents(stroke_width, stroke_alignment.as_offset());
-    // //     let (e_l2_l, e_l2_r) = l2.extents(stroke_width, stroke_alignment.as_offset());
-
-    // //     let first_segment_start_edge = Line::new(e_l1_l.start, e_l1_r.start);
-    // //     let second_segment_end_edge = Line::new(e_l2_l.end, e_l2_r.end);
-
-    // //     e_l1_l
-    // //         .into_styled(PrimitiveStyle::with_stroke(Rgb888::RED, 1))
-    // //         .draw(display)?;
-    // //     e_l1_r
-    // //         .into_styled(PrimitiveStyle::with_stroke(Rgb888::RED, 1))
-    // //         .draw(display)?;
-    // //     first_segment_start_edge
-    // //         .into_styled(PrimitiveStyle::with_stroke(Rgb888::CSS_ORANGE, 1))
-    // //         .draw(display)?;
-
-    // //     e_l2_l
-    // //         .into_styled(PrimitiveStyle::with_stroke(Rgb888::GREEN, 1))
-    // //         .draw(display)?;
-    // //     e_l2_r
-    // //         .into_styled(PrimitiveStyle::with_stroke(Rgb888::GREEN, 1))
-    // //         .draw(display)?;
-    // //     second_segment_end_edge
-    // //         .into_styled(PrimitiveStyle::with_stroke(Rgb888::CSS_GREEN, 1))
-    // //         .draw(display)?;
-
-    // //     dbg!(
-    // //         first_segment_start_edge.segment_intersection(&e_l2_l),
-    // //         second_segment_end_edge.segment_intersection(&e_l1_r)
-    // //     );
-    // //     // dbg!(l1.line_intersection(&l2));
-    // // }
-
-    // let scanline = Line::new(
-    //     Point::new(0, mouse_pos.y),
-    //     Point::new(display.size().width as i32, mouse_pos.y),
-    // );
-    // let scanline_y = scanline.start.y;
-
-    // Text::new(&format!("{:?}", stroke_alignment), Point::zero())
+    //     Text::new(
+    //         &format!("{:?}\nStroke {}", stroke_alignment, stroke_width),
+    //         Point::zero(),
+    //     )
     //     .into_styled(TextStyle::new(Font6x8, Rgb888::GREEN))
     //     .draw(display)?;
 
-    // scanline
+    //     // Skeleton
+    //     t.into_styled(PrimitiveStyle::with_stroke(Rgb888::RED, 1))
+    //         .draw(display)?;
+
+    //     let styled = t.into_styled(style);
+
+    //     // Scanline
+    //     Line::new(
+    //         Point::new(0, mouse_pos.y),
+    //         Point::new(display.size().width as i32, mouse_pos.y),
+    //     )
     //     .into_styled(PrimitiveStyle::with_stroke(Rgb888::BLUE, 1))
     //     .draw(display)?;
 
-    // let p1 = Point::new(80, 150);
-    // let p2 = Point::new(120, 80);
-    // let p3 = position;
+    //     let scanline_y = mouse_pos.y;
 
-    // let t = Triangle::new(p1, p2, p3).sorted_clockwise();
+    //     let it = ScanlineIntersections::new(&styled, scanline_y).enumerate();
 
-    // let points = [t.p1, t.p2, t.p3];
+    //     for (idx, (line, ty)) in it {
+    //         println!("{}: {:?}", idx, line);
 
-    // let joins = [
-    //     LineJoin::from_points(t.p3, t.p1, t.p2, stroke_width, stroke_alignment.as_offset()),
-    //     LineJoin::from_points(t.p1, t.p2, t.p3, stroke_width, stroke_alignment.as_offset()),
-    //     LineJoin::from_points(t.p2, t.p3, t.p1, stroke_width, stroke_alignment.as_offset()),
-    // ];
-
-    // let is_collapsed = joins.iter().enumerate().any(|(i, j)| {
-    //     // Inside point of the joint. The triangle is sorted clockwise, so this is always the right.
-    //     let inner_point = j.first_edge_end.right;
-
-    //     // Find opposite edge to the given point.
-    //     let opposite = {
-    //         let start = points[(i + 1) % 3];
-    //         let end = points[(i + 2) % 3];
-
-    //         // Get right side extent (triangle is sorted clockwise, remember)
-    //         Line::new(start, end)
-    //             .extents(stroke_width, stroke_alignment.as_offset())
-    //             .1
-    //     };
-
-    //     // If the inner point is to the left of the opposite side line, the triangle edges self-
-    //     // intersect, so the triangle is collapsed.
-    //     opposite.side(inner_point) >= 0
-    // });
-
-    // let should_use_normal_iter = is_collapsed && stroke_alignment == StrokeAlignment::Inside;
-
-    // Text::new(
-    //     &format!(
-    //         "{:?}\nUse normal? {:?}",
-    //         is_collapsed, should_use_normal_iter
-    //     ),
-    //     Point::new(0, 8),
-    // )
-    // .into_styled(TextStyle::new(Font6x8, Rgb888::GREEN))
-    // .draw(display)?;
-
-    // let it = ClosedThickSegmentIter::new(&points, stroke_width, stroke_alignment.as_offset());
-
-    // let inner_t = Triangle::new(
-    //     joins[0].first_edge_end.right,
-    //     joins[1].first_edge_end.right,
-    //     joins[2].first_edge_end.right,
-    // );
-
-    // // inner_t
-    // //     .into_styled(PrimitiveStyle::with_stroke(Rgb888::YELLOW, 1))
-    // //     .draw(display)?;
-
-    // // Text::new(&format!("{:?}", inner_t.area_doubled()), Point::new(0, 16))
-    // //     .into_styled(TextStyle::new(Font6x8, Rgb888::GREEN))
-    // //     .draw(display)?;
-
-    // // let centroid = t.centroid();
-
-    // // let dist1 = calc_dist(centroid, joins[0], joins[1]);
-    // // let dist2 = calc_dist(centroid, joins[1], joins[2]);
-    // // let dist3 = calc_dist(centroid, joins[2], joins[0]);
-
-    // // // Flag denoting whether the inside of the triangle is completely filled by the edge strokes
-    // // // or not.
-    // // let is_collapsed =
-    // //     dist1 < stroke_width.pow(2) || dist2 < stroke_width.pow(2) || dist3 < stroke_width.pow(2);
-
-    // it.clone().enumerate().try_for_each(|(idx, side)| {
-    //     // Outside is always left side of line due to clockwise sorting.
-    //     let (inside, outside) = side.edges();
-
-    //     // Draw bevel filler if required
-    //     if let Some(filler) = side.start_join.filler_line() {
-    //         filler
-    //             .into_styled(PrimitiveStyle::with_stroke(Rgb888::CSS_DEEP_PINK, 1))
+    //         Line::new(line.start, line.end)
+    //             .into_styled(PrimitiveStyle::with_stroke(Rgb888::GREEN, 1))
     //             .draw(display)?;
-    //     }
 
-    //     outside
-    //         .into_styled(PrimitiveStyle::with_stroke(
-    //             if !is_collapsed {
-    //                 Rgb888::CSS_CORAL
-    //             } else {
-    //                 Rgb888::CSS_DARK_ORANGE
-    //             },
-    //             1,
-    //         ))
+    //         /// Slanted marker line
+    //         Line::new(line.start - Point::new(0, 5), line.end - Point::new(0, 10))
+    //             .into_styled(PrimitiveStyle::with_stroke(Rgb888::GREEN, 1))
+    //             .draw(display)?;
+
+    //         // Start marker
+    //         Line::new(
+    //             line.start + Point::new(0, 5),
+    //             line.start + Point::new(0, 10),
+    //         )
+    //         .into_styled(PrimitiveStyle::with_stroke(Rgb888::YELLOW, 1))
     //         .draw(display)?;
 
-    //     // if !is_collapsed {
-    //     //     inside
-    //     //         .into_styled(PrimitiveStyle::with_stroke(Rgb888::CSS_DEEP_SKY_BLUE, 1))
-    //     //         .draw(display)?;
-    //     // }
-
-    //     Text::new(&format!("P{}", idx + 1), points[idx])
-    //         .into_styled(TextStyle::new(Font6x8, Rgb888::CSS_YELLOW_GREEN))
-    //         .draw(display)
-    // })?;
-
-    // // Inside fill scanline
-    // {
-    //     if !is_collapsed {
-    //         inner_t
-    //             .into_styled(PrimitiveStyle::with_fill(Rgb888::new(0x80, 0xf2, 0x91)))
+    //         Text::new(&format!("{}", idx), line.start + Point::new(0, 11))
+    //             .into_styled(TextStyle::new(Font6x8, Rgb888::CSS_ORANGE))
     //             .draw(display)?;
-
-    //         if let Some(l) = inner_t.scanline_intersection(scanline_y) {
-    //             l.into_styled(PrimitiveStyle::with_stroke(Rgb888::RED, 1))
-    //                 .draw(display)?;
-    //         }
     //     }
     // }
 
-    // // Scanline intersections
-    // it.filter_map(|segment| segment.intersection(scanline_y))
-    //     .try_for_each(|line| {
-    //         line.into_styled(PrimitiveStyle::with_stroke(Rgb888::MAGENTA, 1))
+    //
+    // ---
+    //
+
+    // {
+    //     // {
+    //     //     let l1 = Line::new(Point::new(150, 50), Point::new(100, 100));
+    //     //     let l2 = Line::new(Point::new(100, 100), position);
+
+    //     //     l1.into_styled(PrimitiveStyle::with_stroke(Rgb888::RED, 1))
+    //     //         .draw(display)?;
+    //     //     l2.into_styled(PrimitiveStyle::with_stroke(Rgb888::GREEN, 1))
+    //     //         .draw(display)?;
+
+    //     //     let (e_l1_l, e_l1_r) = l1.extents(stroke_width, stroke_alignment.as_offset());
+    //     //     let (e_l2_l, e_l2_r) = l2.extents(stroke_width, stroke_alignment.as_offset());
+
+    //     //     let first_segment_start_edge = Line::new(e_l1_l.start, e_l1_r.start);
+    //     //     let second_segment_end_edge = Line::new(e_l2_l.end, e_l2_r.end);
+
+    //     //     e_l1_l
+    //     //         .into_styled(PrimitiveStyle::with_stroke(Rgb888::RED, 1))
+    //     //         .draw(display)?;
+    //     //     e_l1_r
+    //     //         .into_styled(PrimitiveStyle::with_stroke(Rgb888::RED, 1))
+    //     //         .draw(display)?;
+    //     //     first_segment_start_edge
+    //     //         .into_styled(PrimitiveStyle::with_stroke(Rgb888::CSS_ORANGE, 1))
+    //     //         .draw(display)?;
+
+    //     //     e_l2_l
+    //     //         .into_styled(PrimitiveStyle::with_stroke(Rgb888::GREEN, 1))
+    //     //         .draw(display)?;
+    //     //     e_l2_r
+    //     //         .into_styled(PrimitiveStyle::with_stroke(Rgb888::GREEN, 1))
+    //     //         .draw(display)?;
+    //     //     second_segment_end_edge
+    //     //         .into_styled(PrimitiveStyle::with_stroke(Rgb888::CSS_GREEN, 1))
+    //     //         .draw(display)?;
+
+    //     //     dbg!(
+    //     //         first_segment_start_edge.segment_intersection(&e_l2_l),
+    //     //         second_segment_end_edge.segment_intersection(&e_l1_r)
+    //     //     );
+    //     //     // dbg!(l1.line_intersection(&l2));
+    //     // }
+
+    //     let scanline = Line::new(
+    //         Point::new(0, mouse_pos.y),
+    //         Point::new(display.size().width as i32, mouse_pos.y),
+    //     );
+    //     let scanline_y = scanline.start.y;
+
+    //     Text::new(&format!("{:?}", stroke_alignment), Point::zero())
+    //         .into_styled(TextStyle::new(Font6x8, Rgb888::GREEN))
+    //         .draw(display)?;
+
+    //     scanline
+    //         .into_styled(PrimitiveStyle::with_stroke(Rgb888::BLUE, 1))
+    //         .draw(display)?;
+
+    //     let p1 = Point::new(80, 150);
+    //     let p2 = Point::new(120, 80);
+    //     let p3 = position;
+
+    //     let t = Triangle::new(p1, p2, p3).sorted_clockwise();
+
+    //     let points = [t.p1, t.p2, t.p3];
+
+    //     let joins = [
+    //         LineJoin::from_points(t.p3, t.p1, t.p2, stroke_width, stroke_alignment.as_offset()),
+    //         LineJoin::from_points(t.p1, t.p2, t.p3, stroke_width, stroke_alignment.as_offset()),
+    //         LineJoin::from_points(t.p2, t.p3, t.p1, stroke_width, stroke_alignment.as_offset()),
+    //     ];
+
+    //     let is_collapsed = joins.iter().enumerate().any(|(i, j)| {
+    //         // Inside point of the joint. The triangle is sorted clockwise, so this is always the right.
+    //         let inner_point = j.first_edge_end.right;
+
+    //         // Find opposite edge to the given point.
+    //         let opposite = {
+    //             let start = points[(i + 1) % 3];
+    //             let end = points[(i + 2) % 3];
+
+    //             // Get right side extent (triangle is sorted clockwise, remember)
+    //             Line::new(start, end)
+    //                 .extents(stroke_width, stroke_alignment.as_offset())
+    //                 .1
+    //         };
+
+    //         // If the inner point is to the left of the opposite side line, the triangle edges self-
+    //         // intersect, so the triangle is collapsed.
+    //         opposite.side(inner_point) >= 0
+    //     });
+
+    //     let should_use_normal_iter = is_collapsed && stroke_alignment == StrokeAlignment::Inside;
+
+    //     Text::new(
+    //         &format!(
+    //             "{:?}\nUse normal? {:?}",
+    //             is_collapsed, should_use_normal_iter
+    //         ),
+    //         Point::new(0, 8),
+    //     )
+    //     .into_styled(TextStyle::new(Font6x8, Rgb888::GREEN))
+    //     .draw(display)?;
+
+    //     let it = ClosedThickSegmentIter::new(&points, stroke_width, stroke_alignment.as_offset());
+
+    //     let inner_t = Triangle::new(
+    //         joins[0].first_edge_end.right,
+    //         joins[1].first_edge_end.right,
+    //         joins[2].first_edge_end.right,
+    //     );
+
+    //     // inner_t
+    //     //     .into_styled(PrimitiveStyle::with_stroke(Rgb888::YELLOW, 1))
+    //     //     .draw(display)?;
+
+    //     // Text::new(&format!("{:?}", inner_t.area_doubled()), Point::new(0, 16))
+    //     //     .into_styled(TextStyle::new(Font6x8, Rgb888::GREEN))
+    //     //     .draw(display)?;
+
+    //     // let centroid = t.centroid();
+
+    //     // let dist1 = calc_dist(centroid, joins[0], joins[1]);
+    //     // let dist2 = calc_dist(centroid, joins[1], joins[2]);
+    //     // let dist3 = calc_dist(centroid, joins[2], joins[0]);
+
+    //     // // Flag denoting whether the inside of the triangle is completely filled by the edge strokes
+    //     // // or not.
+    //     // let is_collapsed =
+    //     //     dist1 < stroke_width.pow(2) || dist2 < stroke_width.pow(2) || dist3 < stroke_width.pow(2);
+
+    //     it.clone().enumerate().try_for_each(|(idx, side)| {
+    //         // Outside is always left side of line due to clockwise sorting.
+    //         let (inside, outside) = side.edges();
+
+    //         // Draw bevel filler if required
+    //         if let Some(filler) = side.start_join.filler_line() {
+    //             filler
+    //                 .into_styled(PrimitiveStyle::with_stroke(Rgb888::CSS_DEEP_PINK, 1))
+    //                 .draw(display)?;
+    //         }
+
+    //         outside
+    //             .into_styled(PrimitiveStyle::with_stroke(
+    //                 if !is_collapsed {
+    //                     Rgb888::CSS_CORAL
+    //                 } else {
+    //                     Rgb888::CSS_DARK_ORANGE
+    //                 },
+    //                 1,
+    //             ))
+    //             .draw(display)?;
+
+    //         // if !is_collapsed {
+    //         //     inside
+    //         //         .into_styled(PrimitiveStyle::with_stroke(Rgb888::CSS_DEEP_SKY_BLUE, 1))
+    //         //         .draw(display)?;
+    //         // }
+
+    //         Text::new(&format!("P{}", idx + 1), points[idx])
+    //             .into_styled(TextStyle::new(Font6x8, Rgb888::CSS_YELLOW_GREEN))
     //             .draw(display)
     //     })?;
 
-    // // {
-    // //     // Inside point of each intersection
-    // //     joins
-    // //         .iter()
-    // //         .enumerate()
-    // //         .map(|(i, j)| {
-    // //             let p = j.first_edge_end.right;
+    //     // Inside fill scanline
+    //     {
+    //         if !is_collapsed {
+    //             inner_t
+    //                 .into_styled(PrimitiveStyle::with_fill(Rgb888::new(0x80, 0xf2, 0x91)))
+    //                 .draw(display)?;
 
-    // //             let opp_start = points[(i + 1) % 3];
-    // //             let opp_end = points[(i + 2) % 3];
+    //             if let Some(l) = inner_t.scanline_intersection(scanline_y) {
+    //                 l.into_styled(PrimitiveStyle::with_stroke(Rgb888::RED, 1))
+    //                     .draw(display)?;
+    //             }
+    //         }
+    //     }
 
-    // //             (
-    // //                 p,
-    // //                 Line::new(opp_start, opp_end)
-    // //                     .extents(stroke_width, stroke_alignment.as_offset())
-    // //                     .1,
-    // //             )
-    // //         })
-    // //         .try_for_each(|(p, l)| {
-    // //             let is_degenerate = l.side(p) >= 0;
+    //     // Scanline intersections
+    //     it.filter_map(|segment| segment.intersection(scanline_y))
+    //         .try_for_each(|line| {
+    //             line.into_styled(PrimitiveStyle::with_stroke(Rgb888::MAGENTA, 1))
+    //                 .draw(display)
+    //         })?;
 
-    // //             // let colour = match l.side(p) {
-    // //             //     value if value < 0 => Rgb888::RED,
-    // //             //     value if value == 0 => Rgb888::YELLOW,
-    // //             //     value if value > 0 => Rgb888::BLUE,
-    // //             //     _ => unreachable!(),
-    // //             // };
+    //     // {
+    //     //     // Inside point of each intersection
+    //     //     joins
+    //     //         .iter()
+    //     //         .enumerate()
+    //     //         .map(|(i, j)| {
+    //     //             let p = j.first_edge_end.right;
 
-    // //             let colour = if is_degenerate {
-    // //                 Rgb888::RED
-    // //             } else {
-    // //                 Rgb888::GREEN
-    // //             };
+    //     //             let opp_start = points[(i + 1) % 3];
+    //     //             let opp_end = points[(i + 2) % 3];
 
-    // //             l.into_styled(PrimitiveStyle::with_stroke(colour, 1))
-    // //                 .draw(display)
-    // //         })?;
-    // // }
+    //     //             (
+    //     //                 p,
+    //     //                 Line::new(opp_start, opp_end)
+    //     //                     .extents(stroke_width, stroke_alignment.as_offset())
+    //     //                     .1,
+    //     //             )
+    //     //         })
+    //     //         .try_for_each(|(p, l)| {
+    //     //             let is_degenerate = l.side(p) >= 0;
 
-    // // t.into_styled(PrimitiveStyle::with_stroke(
-    // //     Rgb888::new(0x80, 0xf2, 0x91),
-    // //     stroke_width,
-    // // ))
-    // // .draw(display)?;
+    //     //             // let colour = match l.side(p) {
+    //     //             //     value if value < 0 => Rgb888::RED,
+    //     //             //     value if value == 0 => Rgb888::YELLOW,
+    //     //             //     value if value > 0 => Rgb888::BLUE,
+    //     //             //     _ => unreachable!(),
+    //     //             // };
+
+    //     //             let colour = if is_degenerate {
+    //     //                 Rgb888::RED
+    //     //             } else {
+    //     //                 Rgb888::GREEN
+    //     //             };
+
+    //     //             l.into_styled(PrimitiveStyle::with_stroke(colour, 1))
+    //     //                 .draw(display)
+    //     //         })?;
+    //     // }
+
+    //     // t.into_styled(PrimitiveStyle::with_stroke(
+    //     //     Rgb888::new(0x80, 0xf2, 0x91),
+    //     //     stroke_width,
+    //     // ))
+    //     // .draw(display)?;
     // }
 
     Ok(())
