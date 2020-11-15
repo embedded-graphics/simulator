@@ -11,7 +11,7 @@ use embedded_graphics::{
     pixelcolor::Rgb888,
     prelude::*,
     primitives::{Circle, Ellipse, Rectangle},
-    style::{PrimitiveStyle, PrimitiveStyleBuilder, StrokeAlignment, TextStyle},
+    style::{MonoTextStyle, PrimitiveStyle, PrimitiveStyleBuilder, StrokeAlignment},
 };
 use embedded_graphics_simulator::{
     OutputSettingsBuilder, SimulatorDisplay, SimulatorEvent, Window,
@@ -77,22 +77,22 @@ fn update(
     let text_offset = Point::new(0, 8) + Size::new(PADDING, 0);
     let column_offset = Size::new(SIZE + PADDING, 0);
     Text::new("Inside", text_offset)
-        .into_styled(TextStyle::new(Font6x12, Rgb888::WHITE))
+        .into_styled(MonoTextStyle::new(Font6x12, Rgb888::WHITE))
         .draw(display)?;
 
     Text::new("Center\n(Default)", text_offset + column_offset)
-        .into_styled(TextStyle::new(Font6x12, Rgb888::WHITE))
+        .into_styled(MonoTextStyle::new(Font6x12, Rgb888::WHITE))
         .draw(display)?;
 
     Text::new("Outside", text_offset + column_offset * 2)
-        .into_styled(TextStyle::new(Font6x12, Rgb888::WHITE))
+        .into_styled(MonoTextStyle::new(Font6x12, Rgb888::WHITE))
         .draw(display)?;
 
     Text::new(
         "Click to toggle shape outline",
         Point::new(PADDING as i32, 330),
     )
-    .into_styled(TextStyle::new(Font6x12, Rgb888::WHITE))
+    .into_styled(MonoTextStyle::new(Font6x12, Rgb888::WHITE))
     .draw(display)
 }
 

@@ -7,7 +7,7 @@ use embedded_graphics::{
     pixelcolor::Rgb565,
     prelude::*,
     primitives::{Circle, Rectangle},
-    style::{PrimitiveStyle, TextStyleBuilder},
+    style::{MonoTextStyleBuilder, PrimitiveStyle},
 };
 use embedded_graphics_simulator::{OutputSettingsBuilder, SimulatorDisplay, Window};
 
@@ -27,7 +27,7 @@ fn main() -> Result<(), core::convert::Infallible> {
     Text::new("Hello world! - no background", Point::new(15, 15))
         .into_styled(
             // Can also be written in the shorter form: TextStyle:new(Font6x8, Rgb565::WHITE)
-            TextStyleBuilder::new(Font6x8)
+            MonoTextStyleBuilder::new(Font6x8)
                 .text_color(Rgb565::WHITE)
                 .build(),
         )
@@ -36,7 +36,7 @@ fn main() -> Result<(), core::convert::Infallible> {
 
     Text::new("Hello world! - filled background", Point::new(15, 30))
         .into_styled(
-            TextStyleBuilder::new(Font6x8)
+            MonoTextStyleBuilder::new(Font6x8)
                 .text_color(Rgb565::YELLOW)
                 .background_color(Rgb565::BLUE)
                 .build(),
@@ -46,7 +46,7 @@ fn main() -> Result<(), core::convert::Infallible> {
 
     Text::new("Hello world! - inverse background", Point::new(15, 45))
         .into_styled(
-            TextStyleBuilder::new(Font6x8)
+            MonoTextStyleBuilder::new(Font6x8)
                 .text_color(Rgb565::BLUE)
                 .background_color(Rgb565::YELLOW)
                 .build(),

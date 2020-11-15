@@ -268,11 +268,11 @@ some display drivers implement accelerated drawing of iterators."#,
                 fonts::{Font6x8, Text},
                 pixelcolor::Rgb888,
                 prelude::*,
-                style::TextStyle,
+                style::MonoTextStyle,
             };
             {}
             Text::new("Hello,\nRust!", Point::new(2, 28))
-                .into_styled(TextStyle::new(Font6x8, Rgb888::GREEN))
+                .into_styled(MonoTextStyle::new(Font6x8, Rgb888::GREEN))
                 .draw(&mut display)?;
         }
     );

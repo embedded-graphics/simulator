@@ -10,7 +10,7 @@ use embedded_graphics::{
     pixelcolor::BinaryColor,
     prelude::*,
     primitives::{Circle, Rectangle, Triangle},
-    style::{PrimitiveStyle, TextStyle},
+    style::{MonoTextStyle, PrimitiveStyle},
 };
 use embedded_graphics_simulator::{
     BinaryColorTheme, OutputSettingsBuilder, SimulatorDisplay, Window,
@@ -23,7 +23,7 @@ fn main() -> Result<(), core::convert::Infallible> {
     let thin_stroke = PrimitiveStyle::with_stroke(BinaryColor::On, 1);
     let thick_stroke = PrimitiveStyle::with_stroke(BinaryColor::On, 3);
     let fill = PrimitiveStyle::with_fill(BinaryColor::On);
-    let text_style = TextStyle::new(Font6x8, BinaryColor::On);
+    let text_style = MonoTextStyle::new(Font6x8, BinaryColor::On);
 
     let yoffset = 10;
 
