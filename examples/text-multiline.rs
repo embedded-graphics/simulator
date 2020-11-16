@@ -6,7 +6,7 @@ use embedded_graphics::{
     fonts::{Font6x8, Text},
     pixelcolor::BinaryColor,
     prelude::*,
-    style::TextStyleBuilder,
+    style::MonoTextStyleBuilder,
 };
 use embedded_graphics_simulator::{OutputSettingsBuilder, SimulatorDisplay, Window};
 
@@ -14,7 +14,7 @@ fn main() -> Result<(), core::convert::Infallible> {
     let mut display: SimulatorDisplay<BinaryColor> = SimulatorDisplay::new(Size::new(256, 128));
 
     // Show multiline text example
-    let style = TextStyleBuilder::new(Font6x8)
+    let style = MonoTextStyleBuilder::new(Font6x8)
         .text_color(BinaryColor::On)
         .background_color(BinaryColor::Off)
         .build();

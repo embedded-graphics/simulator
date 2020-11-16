@@ -12,7 +12,7 @@ use embedded_graphics::{
     pixelcolor::Rgb888,
     prelude::*,
     primitives::Rectangle,
-    style::TextStyle,
+    style::MonoTextStyle,
 };
 use embedded_graphics_simulator::{OutputSettingsBuilder, SimulatorDisplay, Window};
 use tinytga::Tga;
@@ -38,7 +38,7 @@ fn main() -> Result<(), core::convert::Infallible> {
     Image::new(&tile_c, Point::new(100, 310)).draw(&mut display)?;
 
     // Draw labels.
-    let text_style = TextStyle::new(Font6x8, Rgb888::WHITE);
+    let text_style = MonoTextStyle::new(Font6x8, Rgb888::WHITE);
     Text::new("TGA image", Point::new(10, 70))
         .into_styled(text_style)
         .draw(&mut display)?;

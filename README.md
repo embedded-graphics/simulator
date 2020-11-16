@@ -47,7 +47,7 @@ use embedded_graphics::{
     pixelcolor::BinaryColor,
     prelude::*,
     primitives::{Circle, Line, Rectangle},
-    style::{PrimitiveStyle, TextStyle},
+    style::{PrimitiveStyle, MonoTextStyle},
 };
 use embedded_graphics_simulator::{BinaryColorTheme, SimulatorDisplay, Window, OutputSettingsBuilder};
 
@@ -73,7 +73,7 @@ fn main() -> Result<(), core::convert::Infallible> {
         .draw(&mut display)?;
 
     Text::new("Hello World!", Point::new(5, 5))
-        .into_styled(TextStyle::new(Font6x8, BinaryColor::On))
+        .into_styled(MonoTextStyle::new(Font6x8, BinaryColor::On))
         .draw(&mut display)?;
 
     let output_settings = OutputSettingsBuilder::new()

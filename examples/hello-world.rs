@@ -7,7 +7,7 @@ use embedded_graphics::{
     pixelcolor::BinaryColor,
     prelude::*,
     primitives::{Circle, Rectangle, Triangle},
-    style::{PrimitiveStyle, PrimitiveStyleBuilder, StrokeAlignment, TextStyle},
+    style::{MonoTextStyle, PrimitiveStyle, PrimitiveStyleBuilder, StrokeAlignment},
 };
 use embedded_graphics_simulator::{
     BinaryColorTheme, OutputSettingsBuilder, SimulatorDisplay, Window,
@@ -25,7 +25,7 @@ fn main() -> Result<(), std::convert::Infallible> {
         .stroke_alignment(StrokeAlignment::Inside)
         .build();
     let fill = PrimitiveStyle::with_fill(BinaryColor::On);
-    let text_style = TextStyle::new(Font6x8, BinaryColor::On);
+    let text_style = MonoTextStyle::new(Font6x8, BinaryColor::On);
 
     let yoffset = 14;
 

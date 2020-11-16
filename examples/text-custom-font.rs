@@ -1,9 +1,9 @@
 //! # Example: Custom font
 //!
-//! Shows how to implement the `Font` trait for a custom `SeventSegmentFont` font. This font renders
+//! Shows how to implement the `Font` trait for a custom `SevenSegmentFont` font. This font renders
 //! numbers only and emulates a classic 7 segment display.
 
-use embedded_graphics::{fonts::Text, pixelcolor::BinaryColor, prelude::*, style::TextStyle};
+use embedded_graphics::{fonts::Text, pixelcolor::BinaryColor, prelude::*, style::MonoTextStyle};
 use embedded_graphics_simulator::{
     BinaryColorTheme, OutputSettingsBuilder, SimulatorDisplay, Window,
 };
@@ -11,7 +11,7 @@ use embedded_graphics_simulator::{
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 struct SevenSegmentFont;
 
-impl Font for SevenSegmentFont {
+impl MonoFont for SevenSegmentFont {
     const FONT_IMAGE: &'static [u8] = include_bytes!("assets/seven-segment-font.raw");
     const FONT_IMAGE_WIDTH: u32 = 224;
 
@@ -30,11 +30,11 @@ fn main() -> Result<(), core::convert::Infallible> {
     let row_offset = Point::new(0, 44);
 
     Text::new("123", position)
-        .into_styled(TextStyle::new(SevenSegmentFont, BinaryColor::On))
+        .into_styled(MonoTextStyle::new(SevenSegmentFont, BinaryColor::On))
         .draw(&mut display)?;
 
     Text::new("456", position + row_offset)
-        .into_styled(TextStyle::new(SevenSegmentFont, BinaryColor::On))
+        .into_styled(MonoTextStyle::new(SevenSegmentFont, BinaryColor::On))
         .draw(&mut display)?;
 
     let output_settings = OutputSettingsBuilder::new()

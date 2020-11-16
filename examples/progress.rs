@@ -7,7 +7,7 @@ use embedded_graphics::{
     pixelcolor::BinaryColor,
     prelude::*,
     primitives::Arc,
-    style::{PrimitiveStyleBuilder, StrokeAlignment, TextStyle},
+    style::{MonoTextStyle, PrimitiveStyleBuilder, StrokeAlignment},
 };
 use embedded_graphics_simulator::{
     BinaryColorTheme, OutputSettingsBuilder, SimulatorDisplay, SimulatorEvent, Window,
@@ -24,7 +24,7 @@ fn main() -> Result<(), std::convert::Infallible> {
         .stroke_width(5)
         .stroke_alignment(StrokeAlignment::Inside)
         .build();
-    let text_style = TextStyle::new(Font12x16, BinaryColor::On);
+    let text_style = MonoTextStyle::new(Font12x16, BinaryColor::On);
 
     let output_settings = OutputSettingsBuilder::new()
         .theme(BinaryColorTheme::OledBlue)
