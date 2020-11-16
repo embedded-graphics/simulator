@@ -7,147 +7,176 @@
 //! whole thing is updated with your computer's local time every 50ms.
 
 use chrono::{Local, Timelike};
-use core::f32::consts::{FRAC_PI_2, PI};
+use core::f32::consts::PI;
 use embedded_graphics::{
     fonts::{Font12x16, Text},
     pixelcolor::BinaryColor,
     prelude::*,
     primitives::{Circle, Line, Rectangle},
-    style::{MonoTextStyle, PrimitiveStyle, PrimitiveStyleBuilder, Styled},
+    style::{MonoTextStyle, PrimitiveStyle, PrimitiveStyleBuilder},
 };
 use embedded_graphics_simulator::{
     OutputSettingsBuilder, SimulatorDisplay, SimulatorEvent, Window,
 };
 use std::{thread, time::Duration};
 
-/// The width and height of the simulated display
-const DISP_SIZE: i32 = 256;
+/// The margin between the clock face and the display border.
+const MARGIN: u32 = 10;
 
-/// The center of the clock face
-const CENTER: Point = Point::new(DISP_SIZE / 2, DISP_SIZE / 2);
+/// Converts a polar coordinate (angle/distance) into an (X, Y) coordinate centered around the
+/// center of the circle.
+///
+/// The angle is relative to the 12 o'clock position and the radius is relative to the edge of the
+/// clock face.
+fn polar(circle: &Circle, angle: f32, radius_delta: i32) -> Point {
+    let radius = circle.diameter as f32 / 2.0 + radius_delta as f32;
 
-/// The radius of the clock face
-const SIZE: u32 = 120;
-
-/// Start at the top of the circle
-const START: f32 = -FRAC_PI_2;
-
-/// Convert a polar coordinate (angle/distance) into an (X, Y) coordinate centered around `CENTER`
-fn polar(angle: f32, radius: f32) -> Point {
-    CENTER + Point::new((angle.cos() * radius) as i32, (angle.sin() * radius) as i32)
+    circle.center()
+        + Point::new(
+            (angle.sin() * radius) as i32,
+            -(angle.cos() * radius) as i32,
+        )
 }
 
-/// Draw a circle and 12 tics as a simple clock face
-fn draw_face() -> impl Iterator<Item = Pixel<BinaryColor>> {
-    let tic_len = 10.0;
+/// Converts an hour into an angle in radians.
+fn hour_to_angle(hour: u32) -> f32 {
+    // Convert from 24 to 12 hour time.
+    let hour = hour % 12;
 
-    // Create the outer face
-    let face = Circle::with_center(CENTER, 2 * SIZE + 1)
-        .into_styled(PrimitiveStyle::with_stroke(BinaryColor::On, 2));
+    (hour as f32 / 12.0) * 2.0 * PI
+}
 
-    // Create 12 `Line`s starting from the outer edge and drawing inwards by `tic_len` pixels
-    let tics = (0..12).map(move |index| {
-        // Start angle around the circle, in radians
-        let angle = START + (PI * 2.0 / 12.0) * index as f32;
+/// Converts a sexagesimal (base 60) value into an angle in radians.
+fn sexagesimal_to_angle(value: u32) -> f32 {
+    (value as f32 / 60.0) * 2.0 * PI
+}
 
-        // Start point on circumference
-        let start = polar(angle, SIZE as f32);
+/// Creates a centered circle for the clock face.
+fn create_face(target: &impl DrawTarget) -> Circle {
+    // The draw target bounding box can be used to determine the size of the display.
+    let bounding_box = target.bounding_box();
 
-        // End point; start point offset by `tic_len` pixels towards the circle center
-        let end = polar(angle, SIZE as f32 - tic_len);
+    let diameter = bounding_box.size.width.min(bounding_box.size.height) - 2 * MARGIN;
+
+    Circle::with_center(bounding_box.center(), diameter)
+}
+
+/// Draws a circle and 12 graduations as a simple clock face.
+fn draw_face<D>(target: &mut D, clock_face: &Circle) -> Result<(), D::Error>
+where
+    D: DrawTarget<Color = BinaryColor>,
+{
+    // Draw the outer face.
+    (*clock_face)
+        .into_styled(PrimitiveStyle::with_stroke(BinaryColor::On, 2))
+        .draw(target)?;
+
+    // Draw 12 graduations.
+    for angle in (0..12).map(hour_to_angle) {
+        // Start point on circumference.
+        let start = polar(clock_face, angle, 0);
+
+        // End point offset by 10 pixels from the edge.
+        let end = polar(clock_face, angle, -10);
 
         Line::new(start, end)
             .into_styled(PrimitiveStyle::with_stroke(BinaryColor::On, 1))
-            .into_pixels()
-    });
+            .draw(target)?;
+    }
 
-    // Create a single iterator of pixels, first iterating over the circle, then over the 12 lines
-    // generated
-    face.into_pixels().chain(tics.flatten())
+    Ok(())
 }
 
-/// Draw the seconds hand given a seconds value (0 - 59)
-fn draw_seconds_hand(seconds: u32) -> impl Iterator<Item = Pixel<BinaryColor>> {
-    // Convert seconds into a position around the circle in radians
-    let seconds_radians = ((seconds as f32 / 60.0) * 2.0 * PI) + START;
+/// Draws a clock hand.
+fn draw_hand<D>(
+    target: &mut D,
+    clock_face: &Circle,
+    angle: f32,
+    length_delta: i32,
+) -> Result<(), D::Error>
+where
+    D: DrawTarget<Color = BinaryColor>,
+{
+    let end = polar(clock_face, angle, length_delta);
 
-    let end = polar(seconds_radians, SIZE as f32);
+    Line::new(clock_face.center(), end)
+        .into_styled(PrimitiveStyle::with_stroke(BinaryColor::On, 1))
+        .draw(target)
+}
 
-    // Basic line hand
-    let hand = Line::new(CENTER, end).into_styled(PrimitiveStyle::with_stroke(BinaryColor::On, 1));
+/// Draws a decorative circle on the second hand.
+fn draw_second_decoration<D>(
+    target: &mut D,
+    clock_face: &Circle,
+    angle: f32,
+    length_delta: i32,
+) -> Result<(), D::Error>
+where
+    D: DrawTarget<Color = BinaryColor>,
+{
+    let decoration_position = polar(clock_face, angle, length_delta);
 
-    // Decoration position
-    let decoration_position = polar(seconds_radians, SIZE as f32 - 20.0);
-
-    // Decoration style
     let decoration_style = PrimitiveStyleBuilder::new()
         .fill_color(BinaryColor::Off)
         .stroke_color(BinaryColor::On)
         .stroke_width(1)
         .build();
 
-    // Add a fancy circle near the end of the hand
-    let decoration = Circle::with_center(decoration_position, 11).into_styled(decoration_style);
-
-    hand.into_pixels().chain(decoration.into_pixels())
-}
-
-/// Draw the hour hand (0-11)
-fn draw_hour_hand(hour: u32) -> Styled<Line, PrimitiveStyle<BinaryColor>> {
-    // Convert hour into a position around the circle in radians
-    let hour_radians = ((hour as f32 / 12.0) * 2.0 * PI) + START;
-
-    let hand_len = SIZE as f32 - 60.0;
-
-    let end = polar(hour_radians, hand_len);
-
-    // Basic line hand
-    Line::new(CENTER, end).into_styled(PrimitiveStyle::with_stroke(BinaryColor::On, 1))
-}
-
-/// Draw the minute hand (0-59)
-fn draw_minute_hand(minute: u32) -> Styled<Line, PrimitiveStyle<BinaryColor>> {
-    // Convert minute into a position around the circle in radians
-    let minute_radians = ((minute as f32 / 60.0) * 2.0 * PI) + START;
-
-    let hand_len = SIZE as f32 - 30.0;
-
-    let end = polar(minute_radians, hand_len);
-
-    // Basic line hand
-    Line::new(CENTER, end).into_styled(PrimitiveStyle::with_stroke(BinaryColor::On, 1))
+    // Draw a fancy circle near the end of the second hand.
+    Circle::with_center(decoration_position, 11)
+        .into_styled(decoration_style)
+        .draw(target)
 }
 
 /// Draw digital clock just above center with black text on a white background
-///
-/// NOTE: The formatted time str must be passed in as references to temporary values in a
-/// function can't be returned.
-fn draw_digital_clock<'a>(time_str: &'a str) -> impl Iterator<Item = Pixel<BinaryColor>> + 'a {
-    let text = Text::new(&time_str, CENTER - Size::new(48, 48))
+fn draw_digital_clock<D>(
+    target: &mut D,
+    clock_face: &Circle,
+    time_str: &str,
+) -> Result<(), D::Error>
+where
+    D: DrawTarget<Color = BinaryColor>,
+{
+    // Create a styled text object for the time text.
+    let mut text = Text::new(&time_str, Point::zero())
         .into_styled(MonoTextStyle::new(Font12x16, BinaryColor::Off));
 
-    // Add a background around the time digits. Note that there is no bottom-right padding as this
-    // is added by the font renderer itself
+    // Move text to be centered between the 12 o'clock point and the center of the clock face.
+    text.translate_mut(
+        clock_face.center()
+            - text.bounding_box().center()
+            - clock_face.bounding_box().size.y_axis() / 4,
+    );
+
+    // Add a background around the time digits.
+    // Note that there is no bottom-right padding as this is added by the font renderer itself.
     let text_dimensions = text.bounding_box();
-    let background = Rectangle::new(
+    Rectangle::new(
         text_dimensions.top_left - Point::new(3, 3),
         text_dimensions.size + Size::new(4, 4),
     )
-    .into_styled(PrimitiveStyle::with_fill(BinaryColor::On));
+    .into_styled(PrimitiveStyle::with_fill(BinaryColor::On))
+    .draw(target)?;
 
-    // Draw the white background first, then the black text. Order matters here
-    background.into_pixels().chain(text.into_pixels())
+    // Draw the text after the background is drawn.
+    text.draw(target)
 }
 
 fn main() -> Result<(), core::convert::Infallible> {
-    let mut display: SimulatorDisplay<BinaryColor> =
-        SimulatorDisplay::new(Size::new(DISP_SIZE as u32, DISP_SIZE as u32));
+    let mut display = SimulatorDisplay::<BinaryColor>::new(Size::new(256, 256));
 
     let output_settings = OutputSettingsBuilder::new().scale(2).build();
     let mut window = Window::new("Clock", &output_settings);
 
+    let clock_face = create_face(&display);
+
     'running: loop {
         let time = Local::now();
+
+        // Calculate the position of the three clock hands in radians.
+        let hours_radians = hour_to_angle(time.hour());
+        let minutes_radians = sexagesimal_to_angle(time.minute());
+        let seconds_radians = sexagesimal_to_angle(time.second());
 
         // NOTE: In no-std environments, consider using
         // [arrayvec](https://stackoverflow.com/a/39491059/383609) and a fixed size buffer
@@ -160,17 +189,18 @@ fn main() -> Result<(), core::convert::Infallible> {
 
         display.clear(BinaryColor::Off)?;
 
-        draw_face().draw(&mut display)?;
-        draw_hour_hand(time.hour()).draw(&mut display)?;
-        draw_minute_hand(time.minute()).draw(&mut display)?;
-        draw_seconds_hand(time.second()).draw(&mut display)?;
+        draw_face(&mut display, &clock_face)?;
+        draw_hand(&mut display, &clock_face, hours_radians, -60)?;
+        draw_hand(&mut display, &clock_face, minutes_radians, -30)?;
+        draw_hand(&mut display, &clock_face, seconds_radians, 0)?;
+        draw_second_decoration(&mut display, &clock_face, seconds_radians, -20)?;
 
-        // Draw digital clock just above center
-        draw_digital_clock(&digital_clock_text).draw(&mut display)?;
+        // Draw digital clock just above center.
+        draw_digital_clock(&mut display, &clock_face, &digital_clock_text)?;
 
-        // Draw a small circle over the hands in the center of the clock face. This has to happen
-        // after the hands are drawn so they're covered up
-        Circle::with_center(CENTER, 9)
+        // Draw a small circle over the hands in the center of the clock face.
+        // This has to happen after the hands are drawn so they're covered up.
+        Circle::with_center(clock_face.center(), 9)
             .into_styled(PrimitiveStyle::with_fill(BinaryColor::On))
             .draw(&mut display)?;
 
