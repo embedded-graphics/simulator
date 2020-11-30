@@ -14,7 +14,7 @@ use embedded_graphics::{
     pixelcolor::Rgb888,
     prelude::*,
     primitives::Line,
-    primitives::Polyline,
+    primitives::{common::StrokeOffset, line::Intersection, Polyline},
     style::{MonoTextStyle, PrimitiveStyle},
 };
 use embedded_graphics_simulator::{
@@ -24,6 +24,26 @@ use sdl2::keyboard::Keycode;
 
 const BACKGROUND_COLOR: Rgb888 = Rgb888::BLACK;
 
+fn empty_crosshair<D>(
+    point: Point,
+    color: Rgb888,
+    display: &mut D,
+) -> Result<(), core::convert::Infallible>
+where
+    D: DrawTarget<Color = Rgb888, Error = core::convert::Infallible>,
+{
+    let radius = Size::new_equal(4);
+    let inner_radius = Size::new_equal(2);
+
+    Line::new(point - radius.x_axis(), point - inner_radius.x_axis())
+        .points()
+        .chain(Line::new(point + radius.x_axis(), point + inner_radius.x_axis()).points())
+        .chain(Line::new(point - radius.y_axis(), point - inner_radius.y_axis()).points())
+        .chain(Line::new(point + radius.y_axis(), point + inner_radius.y_axis()).points())
+        .map(|p| Pixel(p, color))
+        .draw(display)
+}
+
 fn draw(
     display: &mut SimulatorDisplay<Rgb888>,
     position: Point,
@@ -31,34 +51,43 @@ fn draw(
 ) -> Result<(), core::convert::Infallible> {
     display.clear(BACKGROUND_COLOR)?;
 
+    let mut display = display.translated(Point::new(20, 20));
+
+    let width = 19;
+
     // 3 points almost on a straight line -> doesn't work
     let points = [Point::new(10, 70), Point::new(20, 50), Point::new(29, 30)];
 
-    for width in 1..20 {
-        let pos = Point::new(width as i32 * 30, 0);
+    let right1 = Line::new(points[0], points[1])
+        .extents(width, StrokeOffset::None)
+        .1;
+    let right2 = Line::new(points[1], points[2])
+        .extents(width, StrokeOffset::None)
+        .1;
 
-        Polyline::new(&points)
-            .into_styled(PrimitiveStyle::with_stroke(Rgb888::GREEN, width))
-            .draw(&mut display.translated(pos))?;
+    right1
+        .into_styled(PrimitiveStyle::with_stroke(Rgb888::YELLOW, 1))
+        .draw(&mut display)?;
 
-        Text::new(&width.to_string(), pos + Point::new(10, 80))
-            .into_styled(MonoTextStyle::new(Font6x8, Rgb888::WHITE))
-            .draw(display)?;
+    right2
+        .into_styled(PrimitiveStyle::with_stroke(Rgb888::GREEN, 1))
+        .draw(&mut display)?;
+
+    let intersection = right1.intersection(&right2);
+
+    match intersection {
+        Intersection::Point { point, outer_side } => {
+            empty_crosshair(point, Rgb888::MAGENTA, &mut display);
+        }
+        Intersection::Colinear => println!("Colinear"),
     }
 
-    // 3 points on a straight line -> works
-    let points2 = [Point::new(10, 70), Point::new(20, 50), Point::new(30, 30)];
-
-    for width in 1..20 {
-        let pos = Point::new(width as i32 * 30, 100);
-
-        Polyline::new(&points2)
-            .into_styled(PrimitiveStyle::with_stroke(Rgb888::RED, width))
-            .draw(&mut display.translated(pos))?;
-
-        Text::new(&width.to_string(), pos + Point::new(10, 80))
-            .into_styled(MonoTextStyle::new(Font6x8, Rgb888::WHITE))
-            .draw(display)?;
+    for blah in points.windows(2) {
+        if let [p1, p2] = blah {
+            Line::new(*p1, *p2)
+                .into_styled(PrimitiveStyle::with_stroke(Rgb888::RED, 1))
+                .draw(&mut display)?;
+        }
     }
 
     Ok(())
