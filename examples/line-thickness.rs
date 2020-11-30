@@ -14,6 +14,7 @@ use embedded_graphics::{
     pixelcolor::Rgb888,
     prelude::*,
     primitives::Line,
+    primitives::Polyline,
     style::{MonoTextStyle, PrimitiveStyle},
 };
 use embedded_graphics_simulator::{
@@ -30,38 +31,44 @@ fn draw(
 ) -> Result<(), core::convert::Infallible> {
     display.clear(BACKGROUND_COLOR)?;
 
-    let start = Point::new(
-        display.size().width as i32 / 2,
-        display.size().height as i32 / 2,
-    );
+    // 3 points almost on a straight line -> doesn't work
+    let points = [Point::new(10, 70), Point::new(20, 50), Point::new(29, 30)];
 
-    Text::new(
-        &format!(
-            "W: {}\nDX {}, DY {}",
-            stroke_width,
-            position.x - start.x,
-            position.y - start.y
-        ),
-        Point::zero(),
-    )
-    .into_styled(MonoTextStyle::new(Font6x8, Rgb888::MAGENTA))
-    .draw(display)?;
+    for width in 1..20 {
+        let pos = Point::new(width as i32 * 30, 0);
 
-    Line::new(start, position)
-        .into_styled(PrimitiveStyle::with_stroke(
-            Rgb888::new(0x80, 0xf2, 0x91),
-            stroke_width,
-        ))
-        .draw(display)?;
+        Polyline::new(&points)
+            .into_styled(PrimitiveStyle::with_stroke(Rgb888::GREEN, width))
+            .draw(&mut display.translated(pos))?;
+
+        Text::new(&width.to_string(), pos + Point::new(10, 80))
+            .into_styled(MonoTextStyle::new(Font6x8, Rgb888::WHITE))
+            .draw(display)?;
+    }
+
+    // 3 points on a straight line -> works
+    let points2 = [Point::new(10, 70), Point::new(20, 50), Point::new(30, 30)];
+
+    for width in 1..20 {
+        let pos = Point::new(width as i32 * 30, 100);
+
+        Polyline::new(&points2)
+            .into_styled(PrimitiveStyle::with_stroke(Rgb888::RED, width))
+            .draw(&mut display.translated(pos))?;
+
+        Text::new(&width.to_string(), pos + Point::new(10, 80))
+            .into_styled(MonoTextStyle::new(Font6x8, Rgb888::WHITE))
+            .draw(display)?;
+    }
 
     Ok(())
 }
 
 fn main() -> Result<(), core::convert::Infallible> {
-    let mut display: SimulatorDisplay<Rgb888> = SimulatorDisplay::new(Size::new(200, 200));
+    let mut display: SimulatorDisplay<Rgb888> = SimulatorDisplay::new(Size::new(700, 200));
     let output_settings = OutputSettingsBuilder::new()
-        .scale(4)
-        .pixel_spacing(1)
+        .scale(2)
+        // .pixel_spacing(1)
         .build();
     let mut window = Window::new("Line thickness debugger", &output_settings);
 
