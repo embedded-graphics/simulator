@@ -14,7 +14,7 @@ use embedded_graphics::{
     pixelcolor::Rgb888,
     prelude::*,
     primitives::Line,
-    primitives::{common::StrokeOffset, line::Intersection, Polyline},
+    primitives::{common::LineJoin, common::StrokeOffset, line::Intersection, Polyline},
     style::{MonoTextStyle, PrimitiveStyle},
 };
 use embedded_graphics_simulator::{
@@ -51,42 +51,154 @@ fn draw(
 ) -> Result<(), core::convert::Infallible> {
     display.clear(BACKGROUND_COLOR)?;
 
-    let mut display = display.translated(Point::new(20, 20));
+    // {
+    //     let l1 = Line::new(Point::new(50, 150), Point::new(150, 50));
+    //     let l2 = Line::new(Point::new(50, 50), position);
 
-    let width = 19;
+    //     // let l1 = Line::new(Point::new(50, 150), Point::new(100, 100));
+    //     // let l2 = Line::new(Point::new(100, 100), position);
 
-    // 3 points almost on a straight line -> doesn't work
-    let points = [Point::new(10, 70), Point::new(20, 50), Point::new(29, 30)];
+    //     l1.into_styled(PrimitiveStyle::with_stroke(Rgb888::RED, 1))
+    //         .draw(display)?;
+    //     l2.into_styled(PrimitiveStyle::with_stroke(Rgb888::GREEN, 1))
+    //         .draw(display)?;
 
-    let right1 = Line::new(points[0], points[1])
-        .extents(width, StrokeOffset::None)
-        .1;
-    let right2 = Line::new(points[1], points[2])
-        .extents(width, StrokeOffset::None)
-        .1;
+    //     let intersection = l1.intersection(&l2);
 
-    right1
-        .into_styled(PrimitiveStyle::with_stroke(Rgb888::YELLOW, 1))
-        .draw(&mut display)?;
+    //     match intersection {
+    //         Intersection::Point { point, outer_side } => {
+    //             empty_crosshair(point, Rgb888::MAGENTA, display);
+    //         }
+    //         Intersection::Colinear => println!("Colinear"),
+    //     }
+    // }
 
-    right2
-        .into_styled(PrimitiveStyle::with_stroke(Rgb888::GREEN, 1))
-        .draw(&mut display)?;
+    // ---
 
-    let intersection = right1.intersection(&right2);
+    // {
+    //     println!("---");
+    //     // 3 points almost on a straight line -> doesn't work
+    //     let points = [Point::new(9, 24), Point::new(14, 14), position];
+    //     // let points = [Point::new(10, 70), Point::new(20, 50), position];
 
-    match intersection {
-        Intersection::Point { point, outer_side } => {
-            empty_crosshair(point, Rgb888::MAGENTA, &mut display);
+    //     for width in 10..11 {
+    //         let pos = Point::new(width as i32 * 30, 0);
+
+    //         Polyline::new(&points)
+    //             .into_styled(PrimitiveStyle::with_stroke(Rgb888::GREEN, width))
+    //             .draw(&mut display.translated(pos))?;
+
+    //         Text::new(&width.to_string(), pos + Point::new(10, 80))
+    //             .into_styled(MonoTextStyle::new(Font6x8, Rgb888::WHITE))
+    //             .draw(display)?;
+    //     }
+
+    //     // // 3 points on a straight line -> works
+    //     // let points2 = [Point::new(10, 70), Point::new(20, 50), Point::new(30, 30)];
+
+    //     // for width in 1..20 {
+    //     //     let pos = Point::new(width as i32 * 30, 100);
+
+    //     //     Polyline::new(&points2)
+    //     //         .into_styled(PrimitiveStyle::with_stroke(Rgb888::RED, width))
+    //     //         .draw(&mut display.translated(pos))?;
+
+    //     //     Text::new(&width.to_string(), pos + Point::new(10, 80))
+    //     //         .into_styled(MonoTextStyle::new(Font6x8, Rgb888::WHITE))
+    //     //         .draw(display)?;
+    //     // }
+    // }
+
+    // ---
+
+    // {
+    //     println!("---");
+
+    //     let width = 19;
+
+    //     // 3 points almost on a straight line -> doesn't work
+    //     // let points = [Point::new(10, 70), Point::new(20, 50), Point::new(29, 30)];
+    //     let points = [Point::new(10, 70), Point::new(20, 50), position];
+
+    //     let right1 = Line::new(points[0], points[1])
+    //         .extents(width, StrokeOffset::None)
+    //         .1;
+    //     let right2 = Line::new(points[2], points[1])
+    //         .extents(width, StrokeOffset::None)
+    //         .0;
+
+    //     // right1
+    //     //     .into_styled(PrimitiveStyle::with_stroke(Rgb888::YELLOW, 1))
+    //     //     .draw(display)?;
+
+    //     // right2
+    //     //     .into_styled(PrimitiveStyle::with_stroke(Rgb888::GREEN, 1))
+    //     //     .draw(display)?;
+
+    //     let (a, b) = Line::new_intersection(&right1, &right2);
+
+    //     let word = if a.signum() != b.signum() {
+    //         "Bad"
+    //     } else {
+    //         "Good"
+    //     };
+
+    //     Text::new(word, Point::new(0, 0))
+    //         .into_styled(MonoTextStyle::new(Font6x8, Rgb888::WHITE))
+    //         .draw(display)?;
+
+    //     match right1.intersection(&right2) {
+    //         Intersection::Point { point, outer_side } => {
+    //             empty_crosshair(point, Rgb888::MAGENTA, display);
+    //         }
+    //         Intersection::Colinear => println!("Colinear"),
+    //     }
+
+    //     for blah in points.windows(2) {
+    //         if let [p1, p2] = blah {
+    //             Line::new(*p1, *p2)
+    //                 .into_styled(PrimitiveStyle::with_stroke(Rgb888::RED, 1))
+    //                 .draw(display)?;
+    //         }
+    //     }
+    // }
+
+    // ---
+
+    {
+        println!("---");
+
+        let width = 19;
+
+        // 3 points almost on a straight line -> doesn't work
+        // let points = [Point::new(10, 70), Point::new(20, 50), Point::new(29, 30)];
+        let points = [Point::new(10, 70), Point::new(20, 50), position];
+
+        let intersections = [
+            LineJoin::start(points[0], points[1], width, StrokeOffset::None),
+            LineJoin::from_points(points[0], points[1], points[2], width, StrokeOffset::None),
+            LineJoin::end(points[1], points[2], width, StrokeOffset::None),
+        ];
+
+        for blah in intersections.windows(2) {
+            if let [i1, i2] = blah {
+                Line::new(i1.second_edge_start.right, i2.first_edge_end.right)
+                    .into_styled(PrimitiveStyle::with_stroke(Rgb888::GREEN, 1))
+                    .draw(display)?;
+
+                Line::new(i1.second_edge_start.left, i2.first_edge_end.left)
+                    .into_styled(PrimitiveStyle::with_stroke(Rgb888::YELLOW, 1))
+                    .draw(display)?;
+            }
         }
-        Intersection::Colinear => println!("Colinear"),
-    }
 
-    for blah in points.windows(2) {
-        if let [p1, p2] = blah {
-            Line::new(*p1, *p2)
-                .into_styled(PrimitiveStyle::with_stroke(Rgb888::RED, 1))
-                .draw(&mut display)?;
+        // Skeleton
+        for blah in points.windows(2) {
+            if let [p1, p2] = blah {
+                Line::new(*p1, *p2)
+                    .into_styled(PrimitiveStyle::with_stroke(Rgb888::RED, 1))
+                    .draw(display)?;
+            }
         }
     }
 
@@ -101,7 +213,7 @@ fn main() -> Result<(), core::convert::Infallible> {
         .build();
     let mut window = Window::new("Line thickness debugger", &output_settings);
 
-    let mut position = Point::new(150, 120);
+    let mut position = Point::new(29, 30);
     let mut stroke_width = 5;
     let mut mouse_down = false;
 
