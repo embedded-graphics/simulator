@@ -6,7 +6,7 @@
 
 ## [Unreleased] - ReleaseDate
 
-## [Unreleased - `embedded-graphics` repository] - ReleaseDate
+## [0.2.1] - 2020-07-29
 
 > Note: PR numbers from this point onwards are from the old `embedded-graphics/embedded-graphics` repository. New PR numbers above this note refer to PRs in the `embedded-graphics/tinybmp` repository.
 
@@ -20,8 +20,6 @@
 ### Added
 
 - **(breaking)** #266 Added [image](https://crates.io/crates/image) support and PNG export. See the `README.md` for information about how to use these features. The API for creating windows was changed to make the output settings independent of the `Window` type. The pixel scaling and theme settings were moved to a new `OutputSettings` struct, that can be built using the `OutputSettingsBuilder`. `WindowBuilder` was removed and replaced by a `Window::new(title, &output_settings)` function.
-
-### Changed
 
 ## [0.2.0-beta.2] - 2020-02-17
 
@@ -56,6 +54,6 @@
 <!-- next-url -->
 
 [unreleased]: https://github.com/embedded-graphics/simulator/compare/after-split...HEAD
-[unreleased - `embedded-graphics` repository]: https://github.com/embedded-graphics/embedded-graphics/compare/embedded-graphics-simulator-v0.2.0...before-split
-[0.2.0]: https://github.com/embedded-graphics/embedded-graphics-simulator/compare/embedded-graphics-simulator-v0.2.0-beta.2...embedded-graphics-simulator-v0.2.0
+[0.2.1]: https://github.com/embedded-graphics/embedded-graphics/compare/embedded-graphics-simulator-v0.2.0...embedded-graphics-simulator-v0.2.1
+[0.2.0]: https://github.com/embedded-graphics/embedded-graphics/compare/embedded-graphics-simulator-v0.2.0-beta.2...embedded-graphics-simulator-v0.2.0
 [0.2.0-beta.2]: https://github.com/embedded-graphics/embedded-graphics/compare/embedded-graphics-simulator-v0.2.0-alpha.1...embedded-graphics-simulator-v0.2.0-beta.2
