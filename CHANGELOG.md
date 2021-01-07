@@ -6,6 +6,8 @@
 
 ## [Unreleased] - ReleaseDate
 
+## [0.3.0-alpha.1] - 2021-01-07
+
 ## [0.2.1] - 2020-07-29
 
 > Note: PR numbers from this point onwards are from the old `embedded-graphics/embedded-graphics` repository. New PR numbers above this note refer to PRs in the `embedded-graphics/tinybmp` repository.
@@ -52,8 +54,9 @@
 - The builtin simulator now supports colour pixel types, like `RGB565`.
 
 <!-- next-url -->
+[unreleased]: https://github.com/embedded-graphics/embedded-graphics-simulator/compare/v0.3.0-alpha.1...HEAD
 
-[unreleased]: https://github.com/embedded-graphics/simulator/compare/after-split...HEAD
+[0.3.0-alpha.1]: https://github.com/embedded-graphics/simulator/compare/after-split...v0.3.0-alpha.1
 [0.2.1]: https://github.com/embedded-graphics/embedded-graphics/compare/embedded-graphics-simulator-v0.2.0...embedded-graphics-simulator-v0.2.1
 [0.2.0]: https://github.com/embedded-graphics/embedded-graphics/compare/embedded-graphics-simulator-v0.2.0-beta.2...embedded-graphics-simulator-v0.2.0
 [0.2.0-beta.2]: https://github.com/embedded-graphics/embedded-graphics/compare/embedded-graphics-simulator-v0.2.0-alpha.1...embedded-graphics-simulator-v0.2.0-beta.2
