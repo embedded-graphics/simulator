@@ -27,22 +27,16 @@ version = "0.32.2"
 optional = true
 
 [dependencies.embedded-graphics]
-# version = "=0.7.0-alpha.1"
-# TODO: Remove when a new e-g alpha is released
-git = "https://github.com/embedded-graphics/embedded-graphics"
+version = "=0.7.0-alpha.2"
 
 [dev-dependencies]
 chrono = "0.4.10"
 
 [dependencies.tinybmp]
-# version = "0.2.2"
-# TODO: Remove when a new e-g alpha is released
-git = "https://github.com/embedded-graphics/tinybmp"
+version = "0.3.0-alpha.1"
 
 [dependencies.tinytga]
-# version = "0.3.2"
-# TODO: Remove when a new e-g alpha is released
-git = "https://github.com/embedded-graphics/tinytga"
+version = "0.4.0-alpha.1"
 
 [features]
 default = [ "with-sdl" ]
