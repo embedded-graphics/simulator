@@ -6,6 +6,8 @@
 
 ## [Unreleased] - ReleaseDate
 
+- [#16](https://github.com/embedded-graphics/simulator/pull/16) Re-export `sdl2` types.
+
 ## [0.3.0-alpha.1] - 2021-01-07
 
 ## [0.2.1] - 2020-07-29

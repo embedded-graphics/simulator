@@ -126,6 +126,20 @@ mod window;
 #[cfg(feature = "with-sdl")]
 pub use window::{SimulatorEvent, Window};
 
+/// Re-exported types from sdl2 crate.
+///
+/// The types in this module are used in the [`SimulatorEvent`] enum and are re-exported from the
+/// `sdl2` crate to make it possible to use them without adding a dependency to `sdl2`.
+///
+/// [`SimulatorEvent`]: ../enum.SimulatorEvent.html
+#[cfg(feature = "with-sdl")]
+pub mod sdl2 {
+    pub use sdl2::{
+        keyboard::{Keycode, Mod},
+        mouse::{MouseButton, MouseWheelDirection},
+    };
+}
+
 pub use crate::{
     display::SimulatorDisplay,
     output_settings::{OutputSettings, OutputSettingsBuilder},
