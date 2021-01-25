@@ -294,7 +294,7 @@ object with embedded-graphics.",
             {}
             // Load the TGA image
             let tga: Tga<Rgb888> = Tga::from_slice(
-                include_bytes!(concat!(env!("CARGO_MANIFEST_DIR"), "/examples/assets/rust-pride.tga"))
+                include_bytes!(concat!(env!("CARGO_MANIFEST_DIR"), "/assets/rust-pride.tga"))
             ).unwrap();
             {}
             let image = Image::new(&tga, Point::zero());
