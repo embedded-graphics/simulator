@@ -1,10 +1,6 @@
 target_dir := "target"
 doc_dir := "doc"
 doc_assets_dir := doc_dir + "/assets"
-screenshots_dir := target_dir + "/screenshots"
-# FIXME: `-cimg` suffix is temporary while moving to new CircleCI base images. Remove this suffix
-# when upgrading the tag next time.
-ci_build_image := "jamwaffles/circleci-embedded-graphics:1.40.0-cimg"
 
 #----------
 # Building
@@ -95,19 +91,3 @@ generate-drawing-examples-montage:
         {{doc_assets_dir}}/display*.png \
         -tile 6x2 -background none -geometry 128x128+4+4 miff:- | \
     convert - -trim {{doc_assets_dir}}/all_drawing_ops.png
-
-# Generates a screenshot of an example
-generate-example-screenshot example:
-    @mkdir -p "{{screenshots_dir}}"
-    # Generating {{example}} screenshot
-    EG_SIMULATOR_DUMP="{{screenshots_dir}}/{{example}}.png" \
-    cargo run --example {{example}}
-
-# Generates screenshots of all examples
-@generate-example-screenshots:
-    #!/usr/bin/env bash
-    set -e
-    for example in examples/*.rs; do \
-        just generate-example-screenshot $(basename "$example" .rs); \
-    done
-

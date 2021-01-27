@@ -231,11 +231,11 @@ use embedded_graphics::{
     },
     pixelcolor::Rgb888,
     prelude::*,
-    style::TextStyle,
+    style::MonoTextStyle,
 };
 
 Text::new("Hello,\nRust!", Point::new(2, 28))
-    .into_styled(TextStyle::new(Font6x8, Rgb888::GREEN))
+    .into_styled(MonoTextStyle::new(Font6x8, Rgb888::GREEN))
     .draw(&mut display)?;
 ```
 
@@ -258,7 +258,7 @@ use tinytga::Tga;
 
 let tga: Tga<Rgb888> = Tga::from_slice(include_bytes!(concat!(
     env!("CARGO_MANIFEST_DIR"),
-    "/examples/assets/rust-pride.tga"
+    "/assets/rust-pride.tga"
 )))
 .unwrap();
 
