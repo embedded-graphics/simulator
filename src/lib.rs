@@ -2,33 +2,11 @@
 //!
 //! The simulator can be used to test and debug
 //! [embedded-graphics](https://crates.io/crates/embedded-graphics) code, or produce examples and
-//! interactive demos to show of embedded graphics features.
+//! interactive demos to show off embedded graphics features.
 //!
-//! # Setup
+//! # [Examples](https://github.com/embedded-graphics/examples)
 //!
-//! The simulator uses SDL2 and its development libraries which must be installed to build and run
-//! it.
-//!
-//! ## Linux (`apt`)
-//!
-//! ```bash
-//! sudo apt install libsdl2-dev
-//! ```
-//!
-//! ## macOS (`brew`)
-//!
-//! ```bash
-//! brew install sdl2
-//! ```
-//!
-//! ## Windows
-//!
-//! The Windows install process is a bit more involved, but it _does_ work. See [the Rust-SDL2
-//! crate's README](https://github.com/Rust-SDL2/rust-sdl2) for instructions. There are multiple
-//! ways to get it working, but probably the simplest method is copying the binaries as shown
-//! [here](https://github.com/Rust-SDL2/rust-sdl2#windows-msvc).
-//!
-//! # Examples
+//! More simulator examples can be found in the [examples repository](https://github.com/embedded-graphics/examples).
 //!
 //! ## Simulate a 128x64 SSD1306 OLED
 //!
@@ -75,6 +53,30 @@
 //!     Ok(())
 //! }
 //! ```
+//!
+//! # Setup
+//!
+//! The simulator uses SDL2 and its development libraries which must be installed to build and run
+//! it.
+//!
+//! ## Linux (`apt`)
+//!
+//! ```bash
+//! sudo apt install libsdl2-dev
+//! ```
+//!
+//! ## macOS (`brew`)
+//!
+//! ```bash
+//! brew install sdl2
+//! ```
+//!
+//! ## Windows
+//!
+//! The Windows install process is a bit more involved, but it _does_ work. See [the Rust-SDL2
+//! crate's README](https://github.com/Rust-SDL2/rust-sdl2) for instructions. There are multiple
+//! ways to get it working, but probably the simplest method is copying the binaries as shown
+//! [here](https://github.com/Rust-SDL2/rust-sdl2#windows-msvc).
 //!
 //! # Creating screenshots
 //!
