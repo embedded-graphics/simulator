@@ -71,9 +71,7 @@ impl OutputSettingsBuilder {
     ///
     /// Panics if the scale is set to `0`.
     pub fn scale(mut self, scale: u32) -> Self {
-        if scale == 0 {
-            panic!("scale must be >= 0");
-        }
+        assert!(scale > 0, "scale must be > 0");
 
         self.scale = Some(scale);
 
