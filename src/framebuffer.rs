@@ -2,8 +2,7 @@ use crate::{display::SimulatorDisplay, output_settings::OutputSettings};
 use embedded_graphics::{
     pixelcolor::{Rgb888, RgbColor},
     prelude::*,
-    primitives::{Primitive, Rectangle},
-    style::PrimitiveStyle,
+    primitives::{Primitive, PrimitiveStyle, Rectangle},
 };
 use image::{ImageBuffer, Rgb};
 use std::convert::TryFrom;

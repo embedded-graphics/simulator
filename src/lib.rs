@@ -12,11 +12,11 @@
 //!
 //! ```rust,no_run
 //! use embedded_graphics::{
-//!     fonts::{Font6x8, Text},
 //!     pixelcolor::BinaryColor,
 //!     prelude::*,
-//!     primitives::{Circle, Line, Rectangle},
-//!     style::{PrimitiveStyle, MonoTextStyle},
+//!     primitives::{Circle, Line, Rectangle, PrimitiveStyle},
+//!     mono_font::{ascii::Font6x9, MonoTextStyle},
+//!     text::Text,
 //! };
 //! use embedded_graphics_simulator::{BinaryColorTheme, SimulatorDisplay, Window, OutputSettingsBuilder};
 //!
@@ -42,7 +42,7 @@
 //!         .draw(&mut display)?;
 //!
 //!     Text::new("Hello World!", Point::new(5, 5))
-//!         .into_styled(MonoTextStyle::new(Font6x8, BinaryColor::On))
+//!         .into_styled(MonoTextStyle::new(Font6x9, BinaryColor::On))
 //!         .draw(&mut display)?;
 //!
 //!     let output_settings = OutputSettingsBuilder::new()
