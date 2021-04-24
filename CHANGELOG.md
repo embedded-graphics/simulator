@@ -6,6 +6,8 @@
 
 ## [Unreleased] - ReleaseDate
 
+- [#24](https://github.com/embedded-graphics/simulator/pull/24) Upgrade to embedded-graphics 0.7.0-beta.1.
+
 ## [0.3.0-alpha.2] - 2021-02-05
 
 - [#16](https://github.com/embedded-graphics/simulator/pull/16) Re-export `sdl2` types.
@@ -14,7 +16,7 @@
 
 ## [0.2.1] - 2020-07-29
 
-> Note: PR numbers from this point onwards are from the old `embedded-graphics/embedded-graphics` repository. New PR numbers above this note refer to PRs in the `embedded-graphics/tinybmp` repository.
+> Note: PR numbers from this point onwards are from the old `embedded-graphics/embedded-graphics` repository. New PR numbers above this note refer to PRs in the `embedded-graphics/simulator` repository.
 
 ### Added
 
@@ -58,9 +60,9 @@
 - The builtin simulator now supports colour pixel types, like `RGB565`.
 
 <!-- next-url -->
+
 [unreleased]: https://github.com/embedded-graphics/embedded-graphics-simulator/compare/v0.3.0-alpha.2...HEAD
 [0.3.0-alpha.2]: https://github.com/embedded-graphics/embedded-graphics-simulator/compare/v0.3.0-alpha.1...v0.3.0-alpha.2
-
 [0.3.0-alpha.1]: https://github.com/embedded-graphics/simulator/compare/after-split...v0.3.0-alpha.1
 [0.2.1]: https://github.com/embedded-graphics/embedded-graphics/compare/embedded-graphics-simulator-v0.2.0...embedded-graphics-simulator-v0.2.1
 [0.2.0]: https://github.com/embedded-graphics/embedded-graphics/compare/embedded-graphics-simulator-v0.2.0-beta.2...embedded-graphics-simulator-v0.2.0
