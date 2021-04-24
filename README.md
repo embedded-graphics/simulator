@@ -24,15 +24,16 @@ use embedded_graphics::{
     pixelcolor::BinaryColor,
     prelude::*,
     primitives::{Circle, Line, Rectangle, PrimitiveStyle},
-    mono_font::{ascii::Font6x9, MonoTextStyle},
+    mono_font::{ascii::FONT_6X9, MonoTextStyle},
     text::Text,
 };
 use embedded_graphics_simulator::{BinaryColorTheme, SimulatorDisplay, Window, OutputSettingsBuilder};
 
 fn main() -> Result<(), core::convert::Infallible> {
-    let mut display: SimulatorDisplay<BinaryColor> = SimulatorDisplay::new(Size::new(128, 64));
+    let mut display = SimulatorDisplay::<BinaryColor>::new(Size::new(128, 64));
 
     let line_style = PrimitiveStyle::with_stroke(BinaryColor::On, 1);
+    let text_style = MonoTextStyle::new(&FONT_6X9, BinaryColor::On);
 
     Circle::new(Point::new(72, 8), 48)
         .into_styled(line_style)
@@ -50,9 +51,7 @@ fn main() -> Result<(), core::convert::Infallible> {
         .into_styled(line_style)
         .draw(&mut display)?;
 
-    Text::new("Hello World!", Point::new(5, 5))
-        .into_styled(MonoTextStyle::new(Font6x9, BinaryColor::On))
-        .draw(&mut display)?;
+    Text::new("Hello World!", Point::new(5, 5), text_style).draw(&mut display)?;
 
     let output_settings = OutputSettingsBuilder::new()
         .theme(BinaryColorTheme::OledBlue)
