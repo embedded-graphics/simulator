@@ -6,6 +6,9 @@ pub enum BinaryColorTheme {
     /// A simple on/off, non-styled display with black background and white pixels
     Default,
 
+    /// Inverted colors.
+    Inverted,
+
     /// An on/off classic LCD-like display with white background
     LcdWhite,
 
@@ -34,6 +37,9 @@ impl BinaryColorTheme {
     pub(crate) fn convert(self, color: Rgb888) -> Rgb888 {
         match self {
             BinaryColorTheme::Default => color,
+            BinaryColorTheme::Inverted => {
+                Rgb888::new(255 - color.r(), 255 - color.g(), 255 - color.b())
+            }
             BinaryColorTheme::LcdWhite => {
                 map_color(color, Rgb888::new(245, 245, 245), Rgb888::new(32, 32, 32))
             }

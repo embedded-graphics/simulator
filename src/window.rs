@@ -1,4 +1,6 @@
-use crate::{display::SimulatorDisplay, framebuffer::Framebuffer, output_settings::OutputSettings};
+use crate::{
+    display::SimulatorDisplay, output_image::OutputImage, output_settings::OutputSettings,
+};
 use embedded_graphics::{pixelcolor::Rgb888, prelude::*};
 use sdl2::{
     event::Event,
@@ -60,9 +62,8 @@ pub enum SimulatorEvent {
 }
 
 /// Simulator window
-#[allow(dead_code)]
 pub struct Window {
-    framebuffer: Option<Framebuffer>,
+    framebuffer: Option<OutputImage<Rgb888>>,
     sdl_window: Option<SdlWindow>,
     title: String,
     output_settings: OutputSettings,
@@ -86,14 +87,14 @@ impl Window {
     {
         if let Ok(path) = std::env::var("EG_SIMULATOR_DUMP") {
             display
-                .to_image_buffer(&self.output_settings)
-                .save(path)
+                .to_rgb_output_image(&self.output_settings)
+                .save_png(path)
                 .unwrap();
             std::process::exit(0);
         }
 
         if self.framebuffer.is_none() {
-            self.framebuffer = Some(Framebuffer::new(display, &self.output_settings));
+            self.framebuffer = Some(OutputImage::new(display, &self.output_settings));
         }
 
         if self.sdl_window.is_none() {
@@ -138,14 +139,12 @@ impl Window {
     }
 }
 
-#[allow(dead_code)]
 struct SdlWindow {
     canvas: render::Canvas<sdl2::video::Window>,
     event_pump: sdl2::EventPump,
 }
 
 impl SdlWindow {
-    #[allow(dead_code)]
     pub fn new<C>(
         display: &SimulatorDisplay<C>,
         title: &str,
@@ -171,8 +170,7 @@ impl SdlWindow {
         Self { canvas, event_pump }
     }
 
-    #[allow(dead_code)]
-    pub fn update(&mut self, framebuffer: &Framebuffer) {
+    pub fn update(&mut self, framebuffer: &OutputImage<Rgb888>) {
         let Size { width, height } = framebuffer.size();
 
         let texture_creator = self.canvas.texture_creator();
