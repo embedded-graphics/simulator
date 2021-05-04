@@ -6,11 +6,24 @@
 
 ## [Unreleased] - ReleaseDate
 
+### Added
+
+- [#25](https://github.com/embedded-graphics/simulator/pull/25) Added `OutputImage` to export PNG files and base64 encoded PNGs.
+- [#25](https://github.com/embedded-graphics/simulator/pull/25) Added `BinaryColorTheme::Inverted`.
+
+### Changed
+
+- **(breaking)** [#25](https://github.com/embedded-graphics/simulator/pull/25) Removed `SimulatorDisplay::to_image_buffer`. Use `to_rgb_output_image` or `to_grayscale_output_image` instead.
+
 ## [0.3.0-beta.1] - 2021-04-24
+
+### Changed
 
 - [#24](https://github.com/embedded-graphics/simulator/pull/24) Upgrade to embedded-graphics 0.7.0-beta.1.
 
 ## [0.3.0-alpha.2] - 2021-02-05
+
+### Added
 
 - [#16](https://github.com/embedded-graphics/simulator/pull/16) Re-export `sdl2` types.
 

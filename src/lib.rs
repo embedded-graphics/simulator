@@ -117,7 +117,7 @@
 #![deny(missing_docs)]
 
 mod display;
-mod framebuffer;
+mod output_image;
 mod output_settings;
 mod theme;
 
@@ -143,6 +143,7 @@ pub mod sdl2 {
 
 pub use crate::{
     display::SimulatorDisplay,
+    output_image::OutputImage,
     output_settings::{OutputSettings, OutputSettingsBuilder},
     theme::BinaryColorTheme,
 };

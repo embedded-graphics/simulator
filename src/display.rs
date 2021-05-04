@@ -1,10 +1,11 @@
-use crate::{framebuffer::Framebuffer, output_settings::OutputSettings};
+use std::convert::TryFrom;
+
 use embedded_graphics::{
-    pixelcolor::{BinaryColor, Rgb888},
+    pixelcolor::{BinaryColor, Gray8, Rgb888},
     prelude::*,
 };
-use image::{ImageBuffer, Rgb};
-use std::convert::TryFrom;
+
+use crate::{output_image::OutputImage, output_settings::OutputSettings};
 
 /// Simulator display.
 pub struct SimulatorDisplay<C> {
@@ -12,10 +13,7 @@ pub struct SimulatorDisplay<C> {
     pixels: Box<[C]>,
 }
 
-impl<C> SimulatorDisplay<C>
-where
-    C: PixelColor,
-{
+impl<C: PixelColor> SimulatorDisplay<C> {
     /// Creates a new display filled with a color.
     ///
     /// This constructor can be used if `C` doesn't implement `From<BinaryColor>` or another
@@ -65,7 +63,7 @@ impl<C> SimulatorDisplay<C>
 where
     C: PixelColor + Into<Rgb888>,
 {
-    /// Converts the display contents into an image.rs `ImageBuffer`.
+    /// Converts the display contents into a RGB output image.
     ///
     /// # Examples
     ///
@@ -75,30 +73,55 @@ where
     ///
     /// let output_settings = OutputSettingsBuilder::new().scale(2).build();
     ///
-    /// let display: SimulatorDisplay<Rgb888> = SimulatorDisplay::new(Size::new(128, 64));
+    /// let display = SimulatorDisplay::<Rgb888>::new(Size::new(128, 64));
     ///
     /// // draw something to the display
     ///
-    /// let image_buffer = display.to_image_buffer(&output_settings);
-    /// assert_eq!(image_buffer.width(), 256);
-    /// assert_eq!(image_buffer.height(), 128);
+    /// let output_image = display.to_rgb_output_image(&output_settings);
+    /// assert_eq!(output_image.size(), Size::new(256, 128));
     ///
-    /// // use image buffer
-    /// // example: image_buffer.save
+    /// // use output image:
+    /// // example: output_image.save_png("out.png")?;
     /// ```
-    pub fn to_image_buffer(
+    pub fn to_rgb_output_image(&self, output_settings: &OutputSettings) -> OutputImage<Rgb888> {
+        let mut output = OutputImage::new(self, output_settings);
+        output.update(self);
+
+        output
+    }
+
+    /// Converts the display contents into a grayscale output image.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use embedded_graphics::{pixelcolor::Gray8, prelude::*};
+    /// use embedded_graphics_simulator::{OutputSettingsBuilder, SimulatorDisplay};
+    ///
+    /// let output_settings = OutputSettingsBuilder::new().scale(2).build();
+    ///
+    /// let display = SimulatorDisplay::<Gray8>::new(Size::new(128, 64));
+    ///
+    /// // draw something to the display
+    ///
+    /// let output_image = display.to_grayscale_output_image(&output_settings);
+    /// assert_eq!(output_image.size(), Size::new(256, 128));
+    ///
+    /// // use output image:
+    /// // example: output_image.save_png("out.png")?;
+    /// ```
+    pub fn to_grayscale_output_image(
         &self,
         output_settings: &OutputSettings,
-    ) -> ImageBuffer<Rgb<u8>, Box<[u8]>> {
-        let framebuffer = Framebuffer::new(self, output_settings);
-        framebuffer.into_image_buffer()
+    ) -> OutputImage<Gray8> {
+        let mut output = OutputImage::new(self, output_settings);
+        output.update(self);
+
+        output
     }
 }
 
-impl<C> DrawTarget for SimulatorDisplay<C>
-where
-    C: PixelColor,
-{
+impl<C: PixelColor> DrawTarget for SimulatorDisplay<C> {
     type Color = C;
     type Error = core::convert::Infallible;
 
@@ -116,11 +139,57 @@ where
     }
 }
 
-impl<C> OriginDimensions for SimulatorDisplay<C>
-where
-    C: PixelColor,
-{
+impl<C> OriginDimensions for SimulatorDisplay<C> {
     fn size(&self) -> Size {
         self.size
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use embedded_graphics::primitives::{Line, PrimitiveStyle};
+
+    use super::*;
+
+    #[test]
+    fn rgb_output_image() {
+        let mut display = SimulatorDisplay::<BinaryColor>::new(Size::new(2, 4));
+
+        Line::new(Point::new(0, 0), Point::new(1, 3))
+            .into_styled(PrimitiveStyle::with_stroke(BinaryColor::On, 1))
+            .draw(&mut display)
+            .unwrap();
+
+        let image = display.to_rgb_output_image(&OutputSettings::default());
+        assert_eq!(image.size(), display.size());
+
+        let expected: &[u8] = &[
+            255, 255, 255, 0, 0, 0, //
+            255, 255, 255, 0, 0, 0, //
+            0, 0, 0, 255, 255, 255, //
+            0, 0, 0, 255, 255, 255, //
+        ];
+        assert_eq!(image.data.as_ref(), expected);
+    }
+
+    #[test]
+    fn grayscale_image_buffer() {
+        let mut display = SimulatorDisplay::<BinaryColor>::new(Size::new(2, 4));
+
+        Line::new(Point::new(0, 0), Point::new(1, 3))
+            .into_styled(PrimitiveStyle::with_stroke(BinaryColor::On, 1))
+            .draw(&mut display)
+            .unwrap();
+
+        let image = display.to_grayscale_output_image(&OutputSettings::default());
+        assert_eq!(image.size(), display.size());
+
+        let expected: &[u8] = &[
+            255, 0, //
+            255, 0, //
+            0, 255, //
+            0, 255, //
+        ];
+        assert_eq!(image.data.as_ref(), expected);
     }
 }
