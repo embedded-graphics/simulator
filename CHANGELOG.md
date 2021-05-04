@@ -6,6 +6,8 @@
 
 ## [Unreleased] - ReleaseDate
 
+## [0.3.0-beta.2] - 2021-05-04
+
 ### Added
 
 - [#25](https://github.com/embedded-graphics/simulator/pull/25) Added `OutputImage` to export PNG files and base64 encoded PNGs.
@@ -75,7 +77,8 @@
 - The builtin simulator now supports colour pixel types, like `RGB565`.
 
 <!-- next-url -->
-[unreleased]: https://github.com/embedded-graphics/embedded-graphics-simulator/compare/v0.3.0-beta.1...HEAD
+[unreleased]: https://github.com/embedded-graphics/embedded-graphics-simulator/compare/v0.3.0-beta.2...HEAD
+[0.3.0-beta.2]: https://github.com/embedded-graphics/embedded-graphics-simulator/compare/v0.3.0-beta.1...v0.3.0-beta.2
 
 [0.3.0-beta.1]: https://github.com/embedded-graphics/embedded-graphics-simulator/compare/v0.3.0-alpha.2...v0.3.0-beta.1
 [0.3.0-alpha.2]: https://github.com/embedded-graphics/embedded-graphics-simulator/compare/v0.3.0-alpha.1...v0.3.0-alpha.2
