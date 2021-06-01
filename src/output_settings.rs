@@ -20,8 +20,8 @@ impl OutputSettings {
     {
         let width = display.size().width;
         let height = display.size().height;
-        let output_width = width * self.scale + (width - 1) * self.pixel_spacing;
-        let output_height = height * self.scale + (height - 1) * self.pixel_spacing;
+        let output_width = width * self.scale + width.saturating_sub(1) * self.pixel_spacing;
+        let output_height = height * self.scale + height.saturating_sub(1) * self.pixel_spacing;
 
         Size::new(output_width, output_height)
     }

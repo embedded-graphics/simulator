@@ -29,6 +29,6 @@ fn main() {
 
     println!(
         "<img src=\"data:image/png;base64,{}\">",
-        output_image.to_base64_png()
+        output_image.to_base64_png().unwrap()
     );
 }
