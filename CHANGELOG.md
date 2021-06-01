@@ -6,6 +6,14 @@
 
 ## [Unreleased] - ReleaseDate
 
+### Added
+
+- [#28](https://github.com/embedded-graphics/simulator/pull/28) Added `SimulatorDisplay::to_{be,le,ne}_bytes` to convert the display content to raw image data.
+
+### Fixed
+
+- [#28](https://github.com/embedded-graphics/simulator/pull/28) Fixed panic for zero sized `SimulatorDisplay`s.
+
 ## [0.3.0-beta.2] - 2021-05-04
 
 ### Added
