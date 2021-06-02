@@ -1,4 +1,4 @@
-use std::{fs::File, io::BufReader};
+use std::{fs::File, io::BufReader, ops::Deref};
 
 #[cfg(feature = "with-sdl")]
 use std::{thread, time::Duration};
@@ -116,7 +116,10 @@ impl Window {
             );
 
             assert!(
-                output.as_image_buffer().as_raw().eq(&expected.as_raw()),
+                output
+                    .as_image_buffer()
+                    .as_raw()
+                    .eq(&expected.as_raw().deref()),
                 "display content doesn't match PNG file",
             );
 
