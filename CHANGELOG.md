@@ -9,6 +9,11 @@
 ### Added
 
 - [#28](https://github.com/embedded-graphics/simulator/pull/28) Added `SimulatorDisplay::to_{be,le,ne}_bytes` to convert the display content to raw image data.
+- [#29](https://github.com/embedded-graphics/simulator/pull/29) Added support for `EG_SIMULATOR_CHECK`, `EG_SIMULATOR_CHECK_RAW` and `EG_SIMULATOR_DUMP_RAW` environment variables.
+
+### Changed
+
+- **(breaking**) [#29](https://github.com/embedded-graphics/simulator/pull/29) Color types used in `Window::update`and `Window::show_static` must now implement `From<Rgb888>`.
 
 ### Fixed
 

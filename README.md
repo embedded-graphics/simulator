@@ -89,7 +89,7 @@ ways to get it working, but probably the simplest method is copying the binaries
 ## Creating screenshots
 
 Screenshots of programs, that use `Window` to display a simulated display, can be created by
-setting the `EG_SIMULATOR_DUMP` environment variable:
+setting the `EG_SIMULATOR_DUMP` or `EG_SIMULATOR_DUMP_RAW` environment variable:
 
 ```bash
 EG_SIMULATOR_DUMP=screenshot.png cargo run
@@ -98,12 +98,30 @@ EG_SIMULATOR_DUMP=screenshot.png cargo run
 By setting the variable the display passed to the first `Window::update` call gets exported as a
 PNG file to the specified path. After the file is exported the process is terminated.
 
+The difference between `EG_SIMULATOR_DUMP` and `EG_SIMULATOR_DUMP_RAW` is that the first method
+applies the output settings before exporting the PNG file and the later dumps the unaltered
+display content.
+
 ## Exporting images
 
 If a program doesn't require to display a window and only needs to export one or more images, a
 `SimulatorDisplay` can also be converted to an `image` crate `ImageBuffer` by using the
 `to_image_buffer` method. The resulting buffer can then be used to save the display content to
 any format supported by `image`.
+
+## Using the simulator in CI
+
+The simulator supports two environment variables to check if the display content matches a
+reference PNG file: `EG_SIMULATOR_CHECK` and `EG_SIMULATOR_CHECK_RAW`. If the display content
+of the first `Window::update` call doesn't match the reference image the process exits with a
+non zero exit exit code. Otherwise the process will exit with a zero exit code.
+
+```bash
+EG_SIMULATOR_CHECK=screenshot.png cargo run || echo "Display doesn't match PNG file"
+```
+
+`EG_SIMULATOR_CHECK` assumes that the reference image was created using the same
+`OutputSetting`s, while `EG_SIMULATOR_CHECK_RAW` assumes an unstyled reference image.
 
 ## Usage without SDL2
 

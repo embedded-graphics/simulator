@@ -8,7 +8,7 @@ use sdl2::{
     mouse::{MouseButton, MouseWheelDirection},
     render,
 };
-use std::{thread, time::Duration};
+use std::{fs::File, io::BufReader, thread, time::Duration};
 
 /// A derivation of sdl2::event::Event mapped to embedded-graphics coordinates
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
@@ -83,11 +83,66 @@ impl Window {
     /// Updates the window.
     pub fn update<C>(&mut self, display: &SimulatorDisplay<C>)
     where
-        C: PixelColor + Into<Rgb888>,
+        C: PixelColor + Into<Rgb888> + From<Rgb888>,
     {
+        if let Ok(path) = std::env::var("EG_SIMULATOR_CHECK") {
+            let output = display.to_rgb_output_image(&self.output_settings);
+
+            let png_file = BufReader::new(File::open(path).unwrap());
+            let expected = image::load(png_file, image::ImageFormat::Png)
+                .unwrap()
+                .to_rgb8();
+
+            let png_size = Size::new(expected.width(), expected.height());
+
+            assert!(
+                output.size().eq(&png_size),
+                "display dimensions don't match PNG dimensions (display: {}x{}, PNG: {}x{})",
+                output.size().width,
+                output.size().height,
+                png_size.width,
+                png_size.height
+            );
+
+            assert!(
+                output.as_image_buffer().as_raw().eq(&expected.as_raw()),
+                "display content doesn't match PNG file",
+            );
+
+            std::process::exit(0);
+        }
+
+        if let Ok(path) = std::env::var("EG_SIMULATOR_CHECK_RAW") {
+            let expected = SimulatorDisplay::load_png(path).unwrap();
+
+            assert!(
+                display.size().eq(&expected.size()),
+                "display dimensions don't match PNG dimensions (display: {}x{}, PNG: {}x{})",
+                display.size().width,
+                display.size().height,
+                expected.size().width,
+                expected.size().height
+            );
+
+            assert!(
+                display.pixels.eq(&expected.pixels),
+                "display content doesn't match PNG file",
+            );
+
+            std::process::exit(0);
+        }
+
         if let Ok(path) = std::env::var("EG_SIMULATOR_DUMP") {
             display
                 .to_rgb_output_image(&self.output_settings)
+                .save_png(path)
+                .unwrap();
+            std::process::exit(0);
+        }
+
+        if let Ok(path) = std::env::var("EG_SIMULATOR_DUMP_RAW") {
+            display
+                .to_rgb_output_image(&OutputSettings::default())
                 .save_png(path)
                 .unwrap();
             std::process::exit(0);
@@ -114,7 +169,7 @@ impl Window {
     /// is closed.
     pub fn show_static<C>(&mut self, display: &SimulatorDisplay<C>)
     where
-        C: PixelColor + Into<Rgb888>,
+        C: PixelColor + Into<Rgb888> + From<Rgb888>,
     {
         self.update(&display);
 

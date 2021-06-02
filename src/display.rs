@@ -1,4 +1,4 @@
-use std::convert::TryFrom;
+use std::{convert::TryFrom, fs::File, io::BufReader, path::Path};
 
 use embedded_graphics::{
     pixelcolor::{raw::ToBytes, BinaryColor, Gray8, Rgb888},
@@ -8,9 +8,10 @@ use embedded_graphics::{
 use crate::{output_image::OutputImage, output_settings::OutputSettings};
 
 /// Simulator display.
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct SimulatorDisplay<C> {
     size: Size,
-    pixels: Box<[C]>,
+    pub(crate) pixels: Box<[C]>,
 }
 
 impl<C: PixelColor> SimulatorDisplay<C> {
@@ -171,6 +172,27 @@ where
         }
 
         bytes
+    }
+}
+
+impl<C> SimulatorDisplay<C>
+where
+    C: PixelColor + From<Rgb888>,
+{
+    /// Loads a PNG file.
+    pub fn load_png<P: AsRef<Path>>(path: P) -> image::ImageResult<Self> {
+        let png_file = BufReader::new(File::open(path)?);
+        let image = image::load(png_file, image::ImageFormat::Png)?.to_rgb8();
+
+        let pixels = image
+            .pixels()
+            .map(|p| Rgb888::new(p[0], p[1], p[2]).into())
+            .collect();
+
+        Ok(Self {
+            size: Size::new(image.width(), image.height()),
+            pixels,
+        })
     }
 }
 
