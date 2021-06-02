@@ -138,12 +138,10 @@ mod display;
 mod output_image;
 mod output_settings;
 mod theme;
-
-#[cfg(feature = "with-sdl")]
 mod window;
 
 #[cfg(feature = "with-sdl")]
-pub use window::{SimulatorEvent, Window};
+pub use window::SimulatorEvent;
 
 /// Re-exported types from sdl2 crate.
 ///
@@ -164,4 +162,5 @@ pub use crate::{
     output_image::OutputImage,
     output_settings::{OutputSettings, OutputSettingsBuilder},
     theme::BinaryColorTheme,
+    window::Window,
 };

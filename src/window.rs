@@ -1,16 +1,24 @@
-use crate::{
-    display::SimulatorDisplay, output_image::OutputImage, output_settings::OutputSettings,
-};
-use embedded_graphics::{pixelcolor::Rgb888, prelude::*};
+use std::{fs::File, io::BufReader};
+
+#[cfg(feature = "with-sdl")]
+use std::{thread, time::Duration};
+
+#[cfg(feature = "with-sdl")]
 use sdl2::{
     event::Event,
     keyboard::{Keycode, Mod},
     mouse::{MouseButton, MouseWheelDirection},
     render,
 };
-use std::{fs::File, io::BufReader, thread, time::Duration};
+
+use embedded_graphics::{pixelcolor::Rgb888, prelude::*};
+
+use crate::{
+    display::SimulatorDisplay, output_image::OutputImage, output_settings::OutputSettings,
+};
 
 /// A derivation of sdl2::event::Event mapped to embedded-graphics coordinates
+#[cfg(feature = "with-sdl")]
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 pub enum SimulatorEvent {
     /// A keypress event, fired on keyUp
@@ -62,8 +70,10 @@ pub enum SimulatorEvent {
 }
 
 /// Simulator window
+#[allow(dead_code)]
 pub struct Window {
     framebuffer: Option<OutputImage<Rgb888>>,
+    #[cfg(feature = "with-sdl")]
     sdl_window: Option<SdlWindow>,
     title: String,
     output_settings: OutputSettings,
@@ -74,6 +84,7 @@ impl Window {
     pub fn new(title: &str, output_settings: &OutputSettings) -> Self {
         Self {
             framebuffer: None,
+            #[cfg(feature = "with-sdl")]
             sdl_window: None,
             title: String::from(title),
             output_settings: output_settings.clone(),
@@ -148,19 +159,22 @@ impl Window {
             std::process::exit(0);
         }
 
-        if self.framebuffer.is_none() {
-            self.framebuffer = Some(OutputImage::new(display, &self.output_settings));
+        #[cfg(feature = "with-sdl")]
+        {
+            if self.framebuffer.is_none() {
+                self.framebuffer = Some(OutputImage::new(display, &self.output_settings));
+            }
+
+            if self.sdl_window.is_none() {
+                self.sdl_window = Some(SdlWindow::new(display, &self.title, &self.output_settings));
+            }
+
+            let framebuffer = self.framebuffer.as_mut().unwrap();
+            let sdl_window = self.sdl_window.as_mut().unwrap();
+
+            framebuffer.update(display);
+            sdl_window.update(&framebuffer);
         }
-
-        if self.sdl_window.is_none() {
-            self.sdl_window = Some(SdlWindow::new(display, &self.title, &self.output_settings));
-        }
-
-        let framebuffer = self.framebuffer.as_mut().unwrap();
-        let sdl_window = self.sdl_window.as_mut().unwrap();
-
-        framebuffer.update(display);
-        sdl_window.update(&framebuffer);
     }
 
     /// Shows a static display.
@@ -173,6 +187,7 @@ impl Window {
     {
         self.update(&display);
 
+        #[cfg(feature = "with-sdl")]
         'running: loop {
             if self.events().any(|e| e == SimulatorEvent::Quit) {
                 break 'running;
@@ -186,6 +201,7 @@ impl Window {
     /// # Panics
     ///
     /// Panics if called before `update` is called at least once.
+    #[cfg(feature = "with-sdl")]
     pub fn events(&mut self) -> impl Iterator<Item = SimulatorEvent> + '_ {
         self.sdl_window
             .as_mut()
@@ -194,11 +210,13 @@ impl Window {
     }
 }
 
+#[cfg(feature = "with-sdl")]
 struct SdlWindow {
     canvas: render::Canvas<sdl2::video::Window>,
     event_pump: sdl2::EventPump,
 }
 
+#[cfg(feature = "with-sdl")]
 impl SdlWindow {
     pub fn new<C>(
         display: &SimulatorDisplay<C>,
