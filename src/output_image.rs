@@ -5,7 +5,10 @@ use embedded_graphics::{
     prelude::*,
     primitives::Rectangle,
 };
-use image::{png::PngEncoder, ImageBuffer, Luma, Pixel as _, Rgb};
+use image::{
+    png::{CompressionType, FilterType, PngEncoder},
+    ImageBuffer, Luma, Pixel as _, Rgb,
+};
 
 use crate::{display::SimulatorDisplay, output_settings::OutputSettings};
 
@@ -87,24 +90,32 @@ where
 impl<C: OutputImageColor> OutputImage<C> {
     /// Saves the image content to a PNG file.
     pub fn save_png<PATH: AsRef<Path>>(&self, path: PATH) -> image::ImageResult<()> {
-        self.as_image_buffer()
-            .save_with_format(path, image::ImageFormat::Png)
+        let png = self.encode_png()?;
+
+        std::fs::write(path, &png)?;
+
+        Ok(())
     }
 
     /// Returns the image as a base64 encoded PNG.
-    pub fn to_base64_png(&self) -> String {
+    pub fn to_base64_png(&self) -> image::ImageResult<String> {
+        let png = self.encode_png()?;
+
+        Ok(base64::encode(&png))
+    }
+
+    fn encode_png(&self) -> image::ImageResult<Vec<u8>> {
         let mut png = Vec::new();
 
-        PngEncoder::new(&mut png)
+        PngEncoder::new_with_quality(&mut png, CompressionType::Best, FilterType::default())
             .encode(
                 self.data.as_ref(),
                 self.size.width,
                 self.size.height,
                 C::ImageColor::COLOR_TYPE,
-            )
-            .unwrap();
+            )?;
 
-        base64::encode(&png)
+        Ok(png)
     }
 
     /// Returns the output image as an `image` crate `ImageBuffer`.

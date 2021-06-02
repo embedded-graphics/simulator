@@ -1,7 +1,7 @@
 use std::convert::TryFrom;
 
 use embedded_graphics::{
-    pixelcolor::{BinaryColor, Gray8, Rgb888},
+    pixelcolor::{raw::ToBytes, BinaryColor, Gray8, Rgb888},
     prelude::*,
 };
 
@@ -121,6 +121,59 @@ where
     }
 }
 
+impl<C> SimulatorDisplay<C>
+where
+    C: PixelColor + ToBytes,
+    <C as ToBytes>::Bytes: AsRef<[u8]>,
+{
+    /// Converts the display content to big endian raw data.
+    pub fn to_be_bytes(&self) -> Vec<u8> {
+        self.to_bytes(ToBytes::to_be_bytes)
+    }
+
+    /// Converts the display content to little endian raw data.
+    pub fn to_le_bytes(&self) -> Vec<u8> {
+        self.to_bytes(ToBytes::to_le_bytes)
+    }
+
+    /// Converts the display content to native endian raw data.
+    pub fn to_ne_bytes(&self) -> Vec<u8> {
+        self.to_bytes(ToBytes::to_ne_bytes)
+    }
+
+    fn to_bytes<F>(&self, pixel_to_bytes: F) -> Vec<u8>
+    where
+        F: Fn(C) -> C::Bytes,
+    {
+        let mut bytes = Vec::new();
+
+        if C::Raw::BITS_PER_PIXEL >= 8 {
+            for pixel in self.pixels.iter() {
+                bytes.extend_from_slice(&pixel_to_bytes(*pixel).as_ref())
+            }
+        } else {
+            let pixels_per_byte = 8 / C::Raw::BITS_PER_PIXEL;
+
+            for row in self.pixels.chunks(self.size.width as usize) {
+                for byte_pixels in row.chunks(pixels_per_byte) {
+                    let mut value = 0;
+
+                    for pixel in byte_pixels {
+                        value <<= C::Raw::BITS_PER_PIXEL;
+                        value |= pixel.to_be_bytes().as_ref()[0];
+                    }
+
+                    value <<= C::Raw::BITS_PER_PIXEL * (pixels_per_byte - byte_pixels.len());
+
+                    bytes.push(value);
+                }
+            }
+        }
+
+        bytes
+    }
+}
+
 impl<C: PixelColor> DrawTarget for SimulatorDisplay<C> {
     type Color = C;
     type Error = core::convert::Infallible;
@@ -147,9 +200,12 @@ impl<C> OriginDimensions for SimulatorDisplay<C> {
 
 #[cfg(test)]
 mod tests {
-    use embedded_graphics::primitives::{Line, PrimitiveStyle};
-
     use super::*;
+
+    use embedded_graphics::{
+        pixelcolor::{Gray2, Gray4, Rgb565},
+        primitives::{Line, PrimitiveStyle},
+    };
 
     #[test]
     fn rgb_output_image() {
@@ -191,5 +247,134 @@ mod tests {
             0, 255, //
         ];
         assert_eq!(image.data.as_ref(), expected);
+    }
+
+    #[test]
+    fn to_bytes_u1() {
+        let display = SimulatorDisplay {
+            size: Size::new(9, 3),
+            pixels: [
+                1, 0, 0, 0, 0, 0, 0, 1, 0, //
+                0, 1, 0, 0, 0, 0, 1, 0, 1, //
+                0, 0, 1, 0, 0, 1, 0, 0, 0, //
+            ]
+            .iter()
+            .map(|c| BinaryColor::from(*c != 0))
+            .collect::<Vec<_>>()
+            .into_boxed_slice(),
+        };
+
+        let expected = [
+            0b10000001, 0b00000000, //
+            0b01000010, 0b10000000, //
+            0b00100100, 0b00000000, //
+        ];
+        assert_eq!(&display.to_be_bytes(), &expected);
+        assert_eq!(&display.to_le_bytes(), &expected);
+        assert_eq!(&display.to_ne_bytes(), &expected);
+    }
+
+    #[test]
+    fn to_bytes_u2() {
+        let display = SimulatorDisplay {
+            size: Size::new(5, 2),
+            pixels: [
+                0, 1, 2, 3, 0, //
+                1, 0, 3, 2, 1, //
+            ]
+            .iter()
+            .map(|c| Gray2::new(*c))
+            .collect::<Vec<_>>()
+            .into_boxed_slice(),
+        };
+
+        let expected = [
+            0b00011011, 0b00000000, //
+            0b01001110, 0b01000000, //
+        ];
+        assert_eq!(&display.to_be_bytes(), &expected);
+        assert_eq!(&display.to_le_bytes(), &expected);
+        assert_eq!(&display.to_ne_bytes(), &expected);
+    }
+
+    #[test]
+    fn to_bytes_u4() {
+        let display = SimulatorDisplay {
+            size: Size::new(5, 4),
+            pixels: [
+                0x0, 0x1, 0x2, 0x3, 0x4, //
+                0x5, 0x6, 0x7, 0x8, 0x9, //
+                0xA, 0xB, 0xC, 0xD, 0xE, //
+                0xF, 0x0, 0x0, 0x0, 0x0, //
+            ]
+            .iter()
+            .map(|c| Gray4::new(*c))
+            .collect::<Vec<_>>()
+            .into_boxed_slice(),
+        };
+
+        let expected = [
+            0x01, 0x23, 0x40, //
+            0x56, 0x78, 0x90, //
+            0xAB, 0xCD, 0xE0, //
+            0xF0, 0x00, 0x00, //
+        ];
+        assert_eq!(&display.to_be_bytes(), &expected);
+        assert_eq!(&display.to_le_bytes(), &expected);
+        assert_eq!(&display.to_ne_bytes(), &expected);
+    }
+
+    #[test]
+    fn to_bytes_u8() {
+        let expected = [
+            1, 2, 3, //
+            11, 12, 13, //
+        ];
+
+        let display = SimulatorDisplay {
+            size: Size::new(3, 2),
+            pixels: expected
+                .iter()
+                .copied()
+                .map(Gray8::new)
+                .collect::<Vec<_>>()
+                .into_boxed_slice(),
+        };
+
+        assert_eq!(&display.to_be_bytes(), &expected);
+        assert_eq!(&display.to_le_bytes(), &expected);
+        assert_eq!(&display.to_ne_bytes(), &expected);
+    }
+
+    #[test]
+    fn to_bytes_u16() {
+        let expected = vec![Rgb565::new(0x10, 0x00, 0x00), Rgb565::new(0x00, 0x00, 0x01)];
+
+        let display = SimulatorDisplay {
+            size: Size::new(2, 1),
+            pixels: expected.clone().into_boxed_slice(),
+        };
+
+        assert_eq!(&display.to_be_bytes(), &[0x80, 0x00, 0x00, 0x01]);
+        assert_eq!(&display.to_le_bytes(), &[0x00, 0x80, 0x01, 0x00]);
+    }
+
+    #[test]
+    fn to_bytes_u24() {
+        let expected = vec![Rgb888::new(0x80, 0x00, 0x00), Rgb888::new(0x00, 0x00, 0x01)];
+
+        let display = SimulatorDisplay {
+            size: Size::new(2, 1),
+            pixels: expected.clone().into_boxed_slice(),
+        };
+
+        assert_eq!(
+            &display.to_be_bytes(),
+            &[0x80, 0x00, 0x00, 0x00, 0x00, 0x01]
+        );
+        assert_eq!(
+            &display.to_le_bytes(),
+            &[0x00, 0x00, 0x80, 0x01, 0x00, 0x00]
+        );
     }
 }
