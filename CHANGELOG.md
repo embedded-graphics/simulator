@@ -9,8 +9,10 @@
 ### Added
 
 - [#28](https://github.com/embedded-graphics/simulator/pull/28) Added `SimulatorDisplay::to_{be,le,ne}_bytes` to convert the display content to raw image data.
+- [#29](https://github.com/embedded-graphics/simulator/pull/29) Added `SimulatorDisplay::load_png`.
 - [#29](https://github.com/embedded-graphics/simulator/pull/29) Added support for `EG_SIMULATOR_CHECK`, `EG_SIMULATOR_CHECK_RAW` and `EG_SIMULATOR_DUMP_RAW` environment variables.
 - [#29](https://github.com/embedded-graphics/simulator/pull/29) A limited version of `Window` can now be used without the `with-sdl` feature enabled. Event handling isn't available if SDL support is disabled.
+- [#30](https://github.com/embedded-graphics/simulator/pull/30) Added `SimulatorDisplay::diff`.
 
 ### Changed
 

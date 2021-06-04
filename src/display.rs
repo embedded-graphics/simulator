@@ -46,6 +46,43 @@ impl<C: PixelColor> SimulatorDisplay<C> {
 
         None
     }
+
+    /// Compares the content of this display with another display.
+    ///
+    /// If both displays are equal `None` is returned, otherwise a difference image is returned.
+    /// All pixels that are different will be filled with `BinaryColor::On` and all equal pixels
+    /// with `BinaryColor::Off`.
+    ///
+    /// # Panics
+    ///
+    /// Panics if the both display don't have the same size.
+    pub fn diff(&self, other: &SimulatorDisplay<C>) -> Option<SimulatorDisplay<BinaryColor>> {
+        assert!(
+            self.size == other.size,
+            // TODO: use Display impl for Size
+            "both displays must have the same size (self: {}x{}, other: {}x{})",
+            self.size.width,
+            self.size.height,
+            other.size.width,
+            other.size.height,
+        );
+
+        let pixels = self
+            .bounding_box()
+            .points()
+            .map(|p| BinaryColor::from(self.get_pixel(p) != other.get_pixel(p)))
+            .collect::<Vec<_>>()
+            .into_boxed_slice();
+
+        if pixels.iter().any(|p| *p == BinaryColor::On) {
+            Some(SimulatorDisplay {
+                pixels,
+                size: self.size,
+            })
+        } else {
+            None
+        }
+    }
 }
 
 impl<C> SimulatorDisplay<C>
@@ -226,7 +263,7 @@ mod tests {
 
     use embedded_graphics::{
         pixelcolor::{Gray2, Gray4, Rgb565},
-        primitives::{Line, PrimitiveStyle},
+        primitives::{Circle, Line, PrimitiveStyle},
     };
 
     #[test]
@@ -398,5 +435,37 @@ mod tests {
             &display.to_le_bytes(),
             &[0x00, 0x00, 0x80, 0x01, 0x00, 0x00]
         );
+    }
+
+    #[test]
+    fn diff_equal() {
+        let display = SimulatorDisplay::<BinaryColor>::new(Size::new(4, 6));
+        let expected = display.clone();
+
+        assert_eq!(display.diff(&expected), None);
+    }
+
+    #[test]
+    fn diff_not_equal() {
+        let circle = Circle::new(Point::zero(), 3);
+
+        let mut display = SimulatorDisplay::<BinaryColor>::new(Size::new(4, 6));
+        let expected = display.clone();
+
+        circle
+            .into_styled(PrimitiveStyle::with_fill(BinaryColor::On))
+            .draw(&mut display)
+            .unwrap();
+
+        assert_eq!(display.diff(&expected), Some(display));
+    }
+
+    #[test]
+    #[should_panic(expected = "both displays must have the same size (self: 4x6, other: 4x5)")]
+    fn diff_wrong_size() {
+        let display = SimulatorDisplay::<BinaryColor>::new(Size::new(4, 6));
+        let expected = SimulatorDisplay::<BinaryColor>::new(Size::new(4, 5));
+
+        assert_eq!(display.diff(&expected), None);
     }
 }
