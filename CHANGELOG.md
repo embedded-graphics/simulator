@@ -6,6 +6,8 @@
 
 ## [Unreleased] - ReleaseDate
 
+## [0.3.0-beta.3] - 2021-06-04
+
 ### Added
 
 - [#28](https://github.com/embedded-graphics/simulator/pull/28) Added `SimulatorDisplay::to_{be,le,ne}_bytes` to convert the display content to raw image data.
@@ -93,7 +95,8 @@
 - The builtin simulator now supports colour pixel types, like `RGB565`.
 
 <!-- next-url -->
-[unreleased]: https://github.com/embedded-graphics/embedded-graphics-simulator/compare/v0.3.0-beta.2...HEAD
+[unreleased]: https://github.com/embedded-graphics/embedded-graphics-simulator/compare/v0.3.0-beta.3...HEAD
+[0.3.0-beta.3]: https://github.com/embedded-graphics/embedded-graphics-simulator/compare/v0.3.0-beta.2...v0.3.0-beta.3
 [0.3.0-beta.2]: https://github.com/embedded-graphics/embedded-graphics-simulator/compare/v0.3.0-beta.1...v0.3.0-beta.2
 
 [0.3.0-beta.1]: https://github.com/embedded-graphics/embedded-graphics-simulator/compare/v0.3.0-alpha.2...v0.3.0-beta.1
