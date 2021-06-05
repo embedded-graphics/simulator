@@ -6,6 +6,8 @@
 
 ## [Unreleased] - ReleaseDate
 
+## [0.3.0] - 2021-06-05
+
 ## [0.3.0-beta.3] - 2021-06-04
 
 ### Added
@@ -95,7 +97,8 @@
 - The builtin simulator now supports colour pixel types, like `RGB565`.
 
 <!-- next-url -->
-[unreleased]: https://github.com/embedded-graphics/embedded-graphics-simulator/compare/v0.3.0-beta.3...HEAD
+[unreleased]: https://github.com/embedded-graphics/embedded-graphics-simulator/compare/v0.3.0...HEAD
+[0.3.0]: https://github.com/embedded-graphics/embedded-graphics-simulator/compare/v0.3.0-beta.3...v0.3.0
 [0.3.0-beta.3]: https://github.com/embedded-graphics/embedded-graphics-simulator/compare/v0.3.0-beta.2...v0.3.0-beta.3
 [0.3.0-beta.2]: https://github.com/embedded-graphics/embedded-graphics-simulator/compare/v0.3.0-beta.1...v0.3.0-beta.2
 
