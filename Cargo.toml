@@ -2,7 +2,7 @@
 version = "0.3.0"
 name = "embedded-graphics-simulator"
 description = "Embedded graphics simulator"
-authors = ["James Waples <james@wapl.es>"]
+authors = ["James Waples <james@wapl.es>", "Ralf Fuest <mail@rfuest.de>"]
 repository = "https://github.com/embedded-graphics/simulator"
 documentation = "https://docs.rs/embedded-graphics-simulator"
 categories = ["embedded", "no-std"]
