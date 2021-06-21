@@ -29,10 +29,10 @@ Target audience: crate maintainers who wish to release `embedded-graphics-simula
 - Release the crate:
 
   ```bash
-  cargo release <level>
+  cargo release --push-remote <push-remote> <level>
   ```
 
-  Where `<level>` is `major`, `minor`, `patch`, or a specific SemVer version number.
+  Where `<level>` is `major`, `minor`, `patch`, or a specific SemVer version number, and where `<push-remote>` is the git remote for the upstream repository `embedded-graphics/simulator`.
 
 ## Post release
 
