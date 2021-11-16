@@ -1,7 +1,7 @@
 use std::{fs::File, io::BufReader, ops::Deref};
 
 #[cfg(feature = "with-sdl")]
-use std::{thread, time::Duration};
+use std::{cell::RefCell, thread, time::Duration};
 
 #[cfg(feature = "with-sdl")]
 use sdl2::{
@@ -10,6 +10,26 @@ use sdl2::{
     mouse::{MouseButton, MouseWheelDirection},
     render,
 };
+
+#[cfg(feature = "with-sdl")]
+use once_cell::sync::Lazy;
+
+#[cfg(feature = "with-sdl")]
+struct SdlContext {
+    video_subsystem: sdl2::VideoSubsystem,
+    event_pump: sdl2::EventPump,
+}
+
+#[cfg(feature = "with-sdl")]
+thread_local! {
+    static SDL: Lazy<RefCell<SdlContext>> = Lazy::new(|| {
+        let sdl_context = sdl2::init().unwrap();
+        RefCell::new(SdlContext {
+            video_subsystem: sdl_context.video().unwrap(),
+            event_pump: sdl_context.event_pump().unwrap(),
+        })
+    });
+}
 
 use embedded_graphics::{pixelcolor::Rgb888, prelude::*};
 
@@ -216,7 +236,6 @@ impl Window {
 #[cfg(feature = "with-sdl")]
 struct SdlWindow {
     canvas: render::Canvas<sdl2::video::Window>,
-    event_pump: sdl2::EventPump,
 }
 
 #[cfg(feature = "with-sdl")]
@@ -229,21 +248,20 @@ impl SdlWindow {
     where
         C: PixelColor + Into<Rgb888>,
     {
-        let sdl_context = sdl2::init().unwrap();
-        let video_subsystem = sdl_context.video().unwrap();
-
         let size = output_settings.framebuffer_size(display);
 
-        let window = video_subsystem
-            .window(title, size.width, size.height)
-            .position_centered()
-            .build()
-            .unwrap();
+        let window = SDL.with(|sdl| {
+            sdl.borrow_mut()
+                .video_subsystem
+                .window(title, size.width, size.height)
+                .position_centered()
+                .build()
+                .unwrap()
+        });
 
         let canvas = window.into_canvas().build().unwrap();
-        let event_pump = sdl_context.event_pump().unwrap();
 
-        Self { canvas, event_pump }
+        Self { canvas }
     }
 
     pub fn update(&mut self, framebuffer: &OutputImage<Rgb888>) {
@@ -269,9 +287,9 @@ impl SdlWindow {
         output_settings: &OutputSettings,
     ) -> impl Iterator<Item = SimulatorEvent> + '_ {
         let output_settings = output_settings.clone();
-        self.event_pump
-            .poll_iter()
-            .filter_map(move |event| match event {
+        SDL.with(|sdl| sdl.borrow_mut().event_pump.poll_iter().collect::<Vec<Event>>())
+           .into_iter()
+           .filter_map(move |event| match event {
                 Event::Quit { .. }
                 | Event::KeyDown {
                     keycode: Some(Keycode::Escape),
