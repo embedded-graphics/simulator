@@ -329,23 +329,32 @@ impl SdlWindow {
                 }
                 Event::MouseButtonUp {
                     x, y, mouse_btn, ..
-                } => {
-                    let point = output_settings.output_to_display(Point::new(x, y));
-                    Some(SimulatorEvent::MouseButtonUp { point, mouse_btn })
+                } if event.get_window_id() == Some(self.canvas.window().id()) => {
+                    match event.get_window_id() {
+                        Some(id) if id == self.canvas.window().id() => {
+                            let point = output_settings.output_to_display(Point::new(x, y));
+                            Some(SimulatorEvent::MouseButtonUp { point, mouse_btn })
+                        },
+                        _ => None,
+                    }
                 }
                 Event::MouseButtonDown {
                     x, y, mouse_btn, ..
-                } => {
+                } if event.get_window_id() == Some(self.canvas.window().id()) => {
                     let point = output_settings.output_to_display(Point::new(x, y));
                     Some(SimulatorEvent::MouseButtonDown { point, mouse_btn })
                 }
                 Event::MouseWheel {
                     x, y, direction, ..
-                } => Some(SimulatorEvent::MouseWheel {
-                    scroll_delta: Point::new(x, y),
-                    direction,
-                }),
-                Event::MouseMotion { x, y, .. } => {
+                } if event.get_window_id() == Some(self.canvas.window().id()) => {
+                    Some(SimulatorEvent::MouseWheel {
+                        scroll_delta: Point::new(x, y),
+                        direction,
+                    })
+                }
+                Event::MouseMotion {
+                    x, y, .. 
+                } if event.get_window_id() == Some(self.canvas.window().id()) => {
                     let point = output_settings.output_to_display(Point::new(x, y));
                     Some(SimulatorEvent::MouseMove { point })
                 }
