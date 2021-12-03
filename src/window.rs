@@ -287,78 +287,83 @@ impl SdlWindow {
         output_settings: &OutputSettings,
     ) -> impl Iterator<Item = SimulatorEvent> + '_ {
         let output_settings = output_settings.clone();
-        SDL.with(|sdl| sdl.borrow_mut().event_pump.poll_iter().collect::<Vec<Event>>())
-           .into_iter()
-           .filter_map(move |event| match event {
-                Event::Quit { .. }
-                | Event::KeyDown {
-                    keycode: Some(Keycode::Escape),
-                    ..
-                } => Some(SimulatorEvent::Quit),
-                Event::KeyDown {
-                    keycode,
-                    keymod,
-                    repeat,
-                    ..
-                } => {
-                    if let Some(valid_keycode) = keycode {
-                        Some(SimulatorEvent::KeyDown {
-                            keycode: valid_keycode,
-                            keymod,
-                            repeat,
-                        })
-                    } else {
-                        None
-                    }
-                }
-                Event::KeyUp {
-                    keycode,
-                    keymod,
-                    repeat,
-                    ..
-                } => {
-                    if let Some(valid_keycode) = keycode {
-                        Some(SimulatorEvent::KeyUp {
-                            keycode: valid_keycode,
-                            keymod,
-                            repeat,
-                        })
-                    } else {
-                        None
-                    }
-                }
-                Event::MouseButtonUp {
-                    x, y, mouse_btn, ..
-                } if event.get_window_id() == Some(self.canvas.window().id()) => {
-                    match event.get_window_id() {
-                        Some(id) if id == self.canvas.window().id() => {
-                            let point = output_settings.output_to_display(Point::new(x, y));
-                            Some(SimulatorEvent::MouseButtonUp { point, mouse_btn })
-                        },
-                        _ => None,
-                    }
-                }
-                Event::MouseButtonDown {
-                    x, y, mouse_btn, ..
-                } if event.get_window_id() == Some(self.canvas.window().id()) => {
-                    let point = output_settings.output_to_display(Point::new(x, y));
-                    Some(SimulatorEvent::MouseButtonDown { point, mouse_btn })
-                }
-                Event::MouseWheel {
-                    x, y, direction, ..
-                } if event.get_window_id() == Some(self.canvas.window().id()) => {
-                    Some(SimulatorEvent::MouseWheel {
-                        scroll_delta: Point::new(x, y),
-                        direction,
+        SDL.with(|sdl| {
+            sdl.borrow_mut()
+                .event_pump
+                .poll_iter()
+                .collect::<Vec<Event>>()
+        })
+        .into_iter()
+        .filter_map(move |event| match event {
+            Event::Quit { .. }
+            | Event::KeyDown {
+                keycode: Some(Keycode::Escape),
+                ..
+            } => Some(SimulatorEvent::Quit),
+            Event::KeyDown {
+                keycode,
+                keymod,
+                repeat,
+                ..
+            } => {
+                if let Some(valid_keycode) = keycode {
+                    Some(SimulatorEvent::KeyDown {
+                        keycode: valid_keycode,
+                        keymod,
+                        repeat,
                     })
+                } else {
+                    None
                 }
-                Event::MouseMotion {
-                    x, y, .. 
-                } if event.get_window_id() == Some(self.canvas.window().id()) => {
-                    let point = output_settings.output_to_display(Point::new(x, y));
-                    Some(SimulatorEvent::MouseMove { point })
+            }
+            Event::KeyUp {
+                keycode,
+                keymod,
+                repeat,
+                ..
+            } => {
+                if let Some(valid_keycode) = keycode {
+                    Some(SimulatorEvent::KeyUp {
+                        keycode: valid_keycode,
+                        keymod,
+                        repeat,
+                    })
+                } else {
+                    None
                 }
-                _ => None,
-            })
+            }
+            Event::MouseButtonUp {
+                x, y, mouse_btn, ..
+            } if event.get_window_id() == Some(self.canvas.window().id()) => {
+                match event.get_window_id() {
+                    Some(id) if id == self.canvas.window().id() => {
+                        let point = output_settings.output_to_display(Point::new(x, y));
+                        Some(SimulatorEvent::MouseButtonUp { point, mouse_btn })
+                    }
+                    _ => None,
+                }
+            }
+            Event::MouseButtonDown {
+                x, y, mouse_btn, ..
+            } if event.get_window_id() == Some(self.canvas.window().id()) => {
+                let point = output_settings.output_to_display(Point::new(x, y));
+                Some(SimulatorEvent::MouseButtonDown { point, mouse_btn })
+            }
+            Event::MouseWheel {
+                x, y, direction, ..
+            } if event.get_window_id() == Some(self.canvas.window().id()) => {
+                Some(SimulatorEvent::MouseWheel {
+                    scroll_delta: Point::new(x, y),
+                    direction,
+                })
+            }
+            Event::MouseMotion { x, y, .. }
+                if event.get_window_id() == Some(self.canvas.window().id()) =>
+            {
+                let point = output_settings.output_to_display(Point::new(x, y));
+                Some(SimulatorEvent::MouseMove { point })
+            }
+            _ => None,
+        })
     }
 }
