@@ -29,7 +29,7 @@ check-formatting:
 # Generates the docs
 generate-docs:
     cargo clean --doc
-    RUSTDOCFLAGS="-Dwarnings" cargo doc --all-features
+    cargo doc --all-features
 
 # Runs cargo-deadlinks on the docs
 check-links: generate-docs

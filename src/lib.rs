@@ -137,7 +137,11 @@
 //! [`to_rgb_output_image`]: SimulatorDisplay::to_rgb_output_image
 //! [`to_grayscale_output_image`]: SimulatorDisplay::to_grayscale_output_image
 
-#![deny(missing_docs)]
+#![deny(
+    missing_docs,
+    rustdoc::broken_intra_doc_links,
+    rustdoc::private_intra_doc_links
+)]
 
 mod display;
 mod output_image;
