@@ -106,9 +106,7 @@ display content.
 
 If a program doesn't require to display a window and only needs to export one or more images, a
 `SimulatorDisplay` can also be converted to an `image` crate
-[`ImageBuffer`](image::ImageBuffer) by using the
-[`to_rgb_output_image`](SimulatorDisplay::to_rgb_output_image) or
-[`to_grayscale_output_image`](SimulatorDisplay::to_grayscale_output_image) methods
+`ImageBuffer` by using the `to_rgb_output_image` or `to_grayscale_output_image` methods.
 The resulting buffer can then be used to save the display content to any format supported by
 `image`.
 
@@ -143,6 +141,7 @@ default-features = false
 See the [Choosing
 Features](https://doc.rust-lang.org/cargo/reference/specifying-dependencies.html#choosing-features)
 Cargo manifest documentation for more details.
+
 
 ## Minimum supported Rust version
 
