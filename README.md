@@ -95,8 +95,8 @@ setting the `EG_SIMULATOR_DUMP` or `EG_SIMULATOR_DUMP_RAW` environment variable:
 EG_SIMULATOR_DUMP=screenshot.png cargo run
 ```
 
-By setting the variable the display passed to the first `Window::update` call gets exported as a
-PNG file to the specified path. After the file is exported the process is terminated.
+By setting the variable the display passed to the first `Window::update` call gets exported as
+a PNG file to the specified path. After the file is exported the process is terminated.
 
 The difference between `EG_SIMULATOR_DUMP` and `EG_SIMULATOR_DUMP_RAW` is that the first method
 applies the output settings before exporting the PNG file and the later dumps the unaltered
@@ -105,9 +105,12 @@ display content.
 ## Exporting images
 
 If a program doesn't require to display a window and only needs to export one or more images, a
-`SimulatorDisplay` can also be converted to an `image` crate `ImageBuffer` by using the
-`to_image_buffer` method. The resulting buffer can then be used to save the display content to
-any format supported by `image`.
+`SimulatorDisplay` can also be converted to an `image` crate
+[`ImageBuffer`](image::ImageBuffer) by using the
+[`to_rgb_output_image`](SimulatorDisplay::to_rgb_output_image) or
+[`to_grayscale_output_image`](SimulatorDisplay::to_grayscale_output_image) methods
+The resulting buffer can then be used to save the display content to any format supported by
+`image`.
 
 ## Using the simulator in CI
 

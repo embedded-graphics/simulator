@@ -79,15 +79,15 @@
 //!
 //! # Creating screenshots
 //!
-//! Screenshots of programs, that use `Window` to display a simulated display, can be created by
+//! Screenshots of programs, that use [`Window`] to display a simulated display, can be created by
 //! setting the `EG_SIMULATOR_DUMP` or `EG_SIMULATOR_DUMP_RAW` environment variable:
 //!
 //! ```bash
 //! EG_SIMULATOR_DUMP=screenshot.png cargo run
 //! ```
 //!
-//! By setting the variable the display passed to the first `Window::update` call gets exported as a
-//! PNG file to the specified path. After the file is exported the process is terminated.
+//! By setting the variable the display passed to the first [`Window::update`] call gets exported as
+//! a PNG file to the specified path. After the file is exported the process is terminated.
 //!
 //! The difference between `EG_SIMULATOR_DUMP` and `EG_SIMULATOR_DUMP_RAW` is that the first method
 //! applies the output settings before exporting the PNG file and the later dumps the unaltered
@@ -96,15 +96,18 @@
 //! # Exporting images
 //!
 //! If a program doesn't require to display a window and only needs to export one or more images, a
-//! `SimulatorDisplay` can also be converted to an `image` crate `ImageBuffer` by using the
-//! `to_image_buffer` method. The resulting buffer can then be used to save the display content to
-//! any format supported by `image`.
+//! [`SimulatorDisplay`] can also be converted to an [`image`] crate
+//! [`ImageBuffer`](image::ImageBuffer) by using the
+//! [`to_rgb_output_image`](SimulatorDisplay::to_rgb_output_image) or
+//! [`to_grayscale_output_image`](SimulatorDisplay::to_grayscale_output_image) methods
+//! The resulting buffer can then be used to save the display content to any format supported by
+//! [`image`].
 //!
 //! # Using the simulator in CI
 //!
 //! The simulator supports two environment variables to check if the display content matches a
 //! reference PNG file: `EG_SIMULATOR_CHECK` and `EG_SIMULATOR_CHECK_RAW`. If the display content
-//! of the first `Window::update` call doesn't match the reference image the process exits with a
+//! of the first [`Window::update`] call doesn't match the reference image the process exits with a
 //! non zero exit exit code. Otherwise the process will exit with a zero exit code.
 //!
 //! ```bash
@@ -147,8 +150,6 @@ pub use window::SimulatorEvent;
 ///
 /// The types in this module are used in the [`SimulatorEvent`] enum and are re-exported from the
 /// `sdl2` crate to make it possible to use them without adding a dependency to `sdl2`.
-///
-/// [`SimulatorEvent`]: ../enum.SimulatorEvent.html
 #[cfg(feature = "with-sdl")]
 pub mod sdl2 {
     pub use sdl2::{

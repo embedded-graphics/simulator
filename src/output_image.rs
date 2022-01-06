@@ -17,8 +17,6 @@ use crate::{display::SimulatorDisplay, output_settings::OutputSettings};
 /// An output image is the result of applying [`OutputSettings`] to a [`SimulatorDisplay`]. It can
 /// be used to save a simulator display to a PNG file.
 ///
-/// [`OutputSettings`]: struct.OutputSettings.html
-/// [`SimulatorDisplay`]: struct.SimulatorDisplay.html
 #[derive(Debug, PartialEq, Eq, Clone)]
 pub struct OutputImage<C> {
     size: Size,
@@ -61,7 +59,7 @@ where
         }
     }
 
-    /// Updates the image from a `SimulatorDisplay`.
+    /// Updates the image from a [`SimulatorDisplay`].
     pub fn update<DisplayC>(&mut self, display: &SimulatorDisplay<DisplayC>)
     where
         DisplayC: PixelColor + Into<Rgb888>,
@@ -118,7 +116,7 @@ impl<C: OutputImageColor> OutputImage<C> {
         Ok(png)
     }
 
-    /// Returns the output image as an `image` crate `ImageBuffer`.
+    /// Returns the output image as an [`image`] crate [`ImageBuffer`].
     pub fn as_image_buffer(&self) -> ImageBuffer<C::ImageColor, &[u8]> {
         ImageBuffer::from_raw(self.size.width, self.size.height, self.data.as_ref()).unwrap()
     }

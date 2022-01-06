@@ -92,7 +92,6 @@ impl OutputSettingsBuilder {
     /// Note that a theme should only be set when an monochrome display is used.
     /// Setting a theme when using a color display will cause an corrupted output.
     ///
-    /// [`BinaryColorTheme`]: enum.BinaryColorTheme.html
     pub fn theme(mut self, theme: BinaryColorTheme) -> Self {
         self.theme = theme;
 

@@ -4,7 +4,7 @@ target_dir := "target"
 # Building
 #----------
 
-build: check-formatting test test-all build-simulator check-readme check-links
+build: check-formatting test test-all build-simulator check-readme generate-docs
 
 # Build the simulator
 build-simulator:
@@ -29,7 +29,7 @@ check-formatting:
 # Generates the docs
 generate-docs:
     cargo clean --doc
-    cargo doc --all-features
+    RUSTDOCFLAGS="-Dwarnings" cargo doc --all-features
 
 # Runs cargo-deadlinks on the docs
 check-links: generate-docs

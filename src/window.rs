@@ -17,7 +17,7 @@ use crate::{
     display::SimulatorDisplay, output_image::OutputImage, output_settings::OutputSettings,
 };
 
-/// A derivation of sdl2::event::Event mapped to embedded-graphics coordinates
+/// A derivation of [`sdl2::event::Event`] mapped to embedded-graphics coordinates
 #[cfg(feature = "with-sdl")]
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 pub enum SimulatorEvent {
@@ -203,7 +203,7 @@ impl Window {
     ///
     /// # Panics
     ///
-    /// Panics if called before `update` is called at least once.
+    /// Panics if called before [`update`](Self::update) is called at least once.
     #[cfg(feature = "with-sdl")]
     pub fn events(&mut self) -> impl Iterator<Item = SimulatorEvent> + '_ {
         self.sdl_window
