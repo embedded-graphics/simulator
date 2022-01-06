@@ -9,7 +9,7 @@ categories = ["embedded", "no-std"]
 keywords = ["embedded-graphics", "simulator", "graphics", "embedded"]
 readme = "./README.md"
 license = "MIT OR Apache-2.0"
-edition = "2018"
+edition = "2021"
 exclude = [
     "/.circleci/",
     "/.github/",
@@ -20,12 +20,12 @@ exclude = [
 circle-ci = { repository = "embedded-graphics/simulator", branch = "master" }
 
 [dependencies]
-image = "0.23.0"
+image = "0.23.14"
 base64 = "0.13.0"
 embedded-graphics = "0.7.1"
 
 [dependencies.sdl2]
-version = "0.32.2"
+version = "0.35.1"
 optional = true
 
 [features]
