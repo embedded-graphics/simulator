@@ -141,6 +141,11 @@ See the [Choosing
 Features](https://doc.rust-lang.org/cargo/reference/specifying-dependencies.html#choosing-features)
 Cargo manifest documentation for more details.
 
+## Minimum supported Rust version
+
+The minimum supported Rust version for embedded-graphics-simulator is `1.57` or greater.
+Ensure you have the correct version of Rust installed, preferably through <https://rustup.rs>.
+
 ## License
 
 Licensed under either of

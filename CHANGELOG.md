@@ -6,7 +6,10 @@
 
 ## [Unreleased] - ReleaseDate
 
+### Changed
+
 - [#34](https://github.com/embedded-graphics/simulator/pull/34) Bump minimum embedded-graphics version from 0.7.0 to 0.7.1.
+- **(breaking)** [#39](https://github.com/embedded-graphics/simulator/pull/39) Bump Minimum Supported Rust Version (MSRV) to 1.57.
 
 ## [0.3.0] - 2021-06-05
 
@@ -22,7 +25,7 @@
 
 ### Changed
 
-- **(breaking**) [#29](https://github.com/embedded-graphics/simulator/pull/29) Color types used in `Window::update`and `Window::show_static` must now implement `From<Rgb888>`.
+- **(breaking)** [#29](https://github.com/embedded-graphics/simulator/pull/29) Color types used in `Window::update`and `Window::show_static` must now implement `From<Rgb888>`.
 
 ### Fixed
 
