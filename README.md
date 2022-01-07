@@ -79,6 +79,15 @@ sudo apt install libsdl2-dev
 brew install sdl2
 ```
 
+Users on Apple silicon or with custom installation directories will need to
+set `LIBRARY_PATH` for the linker to find the installed SDL2 package:
+
+```bash
+export LIBRARY_PATH="$LIBRARY_PATH:$(brew --prefix)/lib"
+```
+More information can be found in the
+[SDL2 documentation](https://github.com/Rust-SDL2/rust-sdl2#homebrew).
+
 ### Windows
 
 The Windows install process is a bit more involved, but it _does_ work. See [the Rust-SDL2
