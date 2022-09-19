@@ -7,3 +7,4 @@ pre-release-replacements = [
   {file="CHANGELOG.md", prerelease=true, search="<!-- next-url -->", replace="<!-- next-url -->\n[unreleased]: https://github.com/embedded-graphics/{{crate_name}}/compare/{{tag_name}}...HEAD"},
 ]
 tag-message = "Release {{crate_name}} {{version}}"
+pre-release-commit-message = "Release {{crate_name}} {{version}}"
