@@ -11,7 +11,7 @@
 
 ## Minimum supported Rust version
 
-The minimum supported Rust version for embedded-graphics-simulator is `1.57` or greater.
+The minimum supported Rust version for embedded-graphics-simulator is `1.61` or greater.
 Ensure you have the correct version of Rust installed, preferably through <https://rustup.rs>.
 
 ## License
