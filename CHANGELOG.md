@@ -6,6 +6,8 @@
 
 ## [Unreleased] - ReleaseDate
 
+## [0.4.0] - 2022-09-19
+
 ### Changed
 
 - [#34](https://github.com/embedded-graphics/simulator/pull/34) Bump minimum embedded-graphics version from 0.7.0 to 0.7.1.
@@ -102,8 +104,9 @@
 - The builtin simulator now supports colour pixel types, like `RGB565`.
 
 <!-- next-url -->
+[unreleased]: https://github.com/embedded-graphics/embedded-graphics-simulator/compare/v0.4.0...HEAD
 
-[unreleased]: https://github.com/embedded-graphics/embedded-graphics-simulator/compare/v0.3.0...HEAD
+[0.4.0]: https://github.com/embedded-graphics/embedded-graphics-simulator/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/embedded-graphics/embedded-graphics-simulator/compare/v0.3.0-beta.3...v0.3.0
 [0.3.0-beta.3]: https://github.com/embedded-graphics/embedded-graphics-simulator/compare/v0.3.0-beta.2...v0.3.0-beta.3
 [0.3.0-beta.2]: https://github.com/embedded-graphics/embedded-graphics-simulator/compare/v0.3.0-beta.1...v0.3.0-beta.2
