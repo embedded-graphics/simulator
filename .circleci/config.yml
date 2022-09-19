@@ -1,7 +1,8 @@
 # Check that everything (tests, benches, etc) builds in std environments
 precheck_steps: &precheck_steps
+  resource_class: large
   docker:
-    - image: jamwaffles/circleci-embedded-graphics:1.57.0-0
+    - image: jamwaffles/circleci-embedded-graphics:1.61.0-0
       auth:
         username: jamwaffles
         password: $DOCKERHUB_PASSWORD

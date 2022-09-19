@@ -23,10 +23,7 @@ circle-ci = { repository = "embedded-graphics/simulator", branch = "master" }
 image = "0.23.14"
 base64 = "0.13.0"
 embedded-graphics = "0.7.1"
-
-[dependencies.sdl2]
-version = "0.35.1"
-optional = true
+sdl2 = { version = "0.35.1", optional = true }
 
 [features]
 default = [ "with-sdl" ]
