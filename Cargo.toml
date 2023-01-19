@@ -24,8 +24,9 @@ image = "0.23.14"
 base64 = "0.13.0"
 embedded-graphics = "0.7.1"
 sdl2 = { version = "0.35.1", optional = true }
+ouroboros = { version = "0.15.5", optional = true }
 
 [features]
-default = [ "with-sdl" ]
-fixed_point = [ "embedded-graphics/fixed_point" ]
-with-sdl = [ "sdl2" ]
+default = ["with-sdl"]
+fixed_point = ["embedded-graphics/fixed_point"]
+with-sdl = ["sdl2", "ouroboros"]
