@@ -13,13 +13,10 @@ use crate::{
 };
 
 #[cfg(feature = "with-sdl")]
-mod sdl;
+mod sdl_window;
 
 #[cfg(feature = "with-sdl")]
-pub use sdl::{SdlWindow, SdlWindowTexture, SimulatorEvent};
-
-#[cfg(feature = "with-sdl")]
-const TARGET_MS_PER_FRAME: Duration = Duration::from_millis(16); // 60 FPS
+pub use sdl_window::{SdlWindow, SdlWindowTexture, SimulatorEvent};
 
 /// Simulator window
 #[allow(dead_code)]
@@ -29,6 +26,7 @@ pub struct Window {
     sdl_window: Option<SdlWindow>,
     title: String,
     output_settings: OutputSettings,
+    desired_loop_duration: Duration,
 }
 
 impl Window {
@@ -40,6 +38,7 @@ impl Window {
             sdl_window: None,
             title: String::from(title),
             output_settings: output_settings.clone(),
+            desired_loop_duration: Duration::from_millis(1000 / output_settings.max_fps as u64),
         }
     }
 
@@ -133,7 +132,7 @@ impl Window {
             sdl_window.update(&framebuffer);
         }
 
-        thread::sleep(start + TARGET_MS_PER_FRAME - Instant::now());
+        thread::sleep(start + self.desired_loop_duration - Instant::now());
     }
 
     /// Shows a static display.

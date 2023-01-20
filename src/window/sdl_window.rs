@@ -1,6 +1,6 @@
 use embedded_graphics::{
     pixelcolor::Rgb888,
-    prelude::{OriginDimensions, PixelColor, Point},
+    prelude::{PixelColor, Point, Size},
 };
 use sdl2::{
     event::Event,
@@ -69,6 +69,7 @@ pub struct SdlWindow {
     canvas: Canvas<sdl2::video::Window>,
     event_pump: EventPump,
     window_texture: SdlWindowTexture,
+    size: Size,
 }
 
 impl SdlWindow {
@@ -108,16 +109,19 @@ impl SdlWindow {
             canvas,
             event_pump,
             window_texture,
+            size,
         }
     }
 
     pub fn update(&mut self, framebuffer: &OutputImage<Rgb888>) {
-        let size = framebuffer.size();
-
         self.window_texture.with_mut(|fields| {
             fields
                 .texture
-                .update(None, framebuffer.data.as_ref(), size.width as usize * 3)
+                .update(
+                    None,
+                    framebuffer.data.as_ref(),
+                    self.size.width as usize * 3,
+                )
                 .unwrap();
         });
 

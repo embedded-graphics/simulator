@@ -10,6 +10,8 @@ pub struct OutputSettings {
     pub pixel_spacing: u32,
     /// Binary color theme.
     pub theme: BinaryColorTheme,
+    /// Maximum frames per second shown in the window.
+    pub max_fps: u32,
 }
 
 impl OutputSettings {
@@ -51,6 +53,7 @@ pub struct OutputSettingsBuilder {
     scale: Option<u32>,
     pixel_spacing: Option<u32>,
     theme: BinaryColorTheme,
+    max_fps: Option<u32>,
 }
 
 impl OutputSettingsBuilder {
@@ -60,6 +63,7 @@ impl OutputSettingsBuilder {
             scale: None,
             pixel_spacing: None,
             theme: BinaryColorTheme::Default,
+            max_fps: None,
         }
     }
 
@@ -112,12 +116,20 @@ impl OutputSettingsBuilder {
         self
     }
 
+    /// Sets the FPS limit of the window.
+    pub fn max_fps(mut self, max_fps: u32) -> Self {
+        self.max_fps = Some(max_fps);
+
+        self
+    }
+
     /// Builds the output settings.
     pub fn build(self) -> OutputSettings {
         OutputSettings {
             scale: self.scale.unwrap_or(1),
             pixel_spacing: self.pixel_spacing.unwrap_or(0),
             theme: self.theme,
+            max_fps: self.max_fps.unwrap_or(60),
         }
     }
 }
