@@ -1,8 +1,9 @@
-use std::{env, fs::File, io::BufReader, ops::Deref, process};
-
-#[cfg(feature = "with-sdl")]
 use std::{
-    thread,
+    env,
+    fs::File,
+    io::BufReader,
+    ops::Deref,
+    process, thread,
     time::{Duration, Instant},
 };
 
