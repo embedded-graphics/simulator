@@ -206,7 +206,7 @@ impl SdlWindow {
 }
 
 #[ouroboros::self_referencing]
-pub struct SdlWindowTexture {
+struct SdlWindowTexture {
     texture_creator: TextureCreator<WindowContext>,
     #[borrows(texture_creator)]
     #[covariant]

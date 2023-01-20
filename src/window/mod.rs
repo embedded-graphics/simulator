@@ -16,7 +16,7 @@ use crate::{
 mod sdl_window;
 
 #[cfg(feature = "with-sdl")]
-pub use sdl_window::{SdlWindow, SdlWindowTexture, SimulatorEvent};
+pub use sdl_window::{SdlWindow, SimulatorEvent};
 
 /// Simulator window
 #[allow(dead_code)]
