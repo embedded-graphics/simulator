@@ -1,7 +1,10 @@
-use std::{fs::File, io::BufReader, ops::Deref};
+use std::{env, fs::File, io::BufReader, ops::Deref, process};
 
 #[cfg(feature = "with-sdl")]
-use std::{thread, time::Duration};
+use std::{
+    thread,
+    time::{Duration, Instant},
+};
 
 use embedded_graphics::{pixelcolor::Rgb888, prelude::*};
 
@@ -13,11 +16,10 @@ use crate::{
 mod sdl;
 
 #[cfg(feature = "with-sdl")]
-pub use sdl::{
-    SimulatorEvent,
-    SdlWindow,
-    SdlWindowTexture,
-};
+pub use sdl::{SdlWindow, SdlWindowTexture, SimulatorEvent};
+
+#[cfg(feature = "with-sdl")]
+const TARGET_MS_PER_FRAME: Duration = Duration::from_millis(16); // 60 FPS
 
 /// Simulator window
 #[allow(dead_code)]
@@ -46,7 +48,9 @@ impl Window {
     where
         C: PixelColor + Into<Rgb888> + From<Rgb888>,
     {
-        if let Ok(path) = std::env::var("EG_SIMULATOR_CHECK") {
+        let start = Instant::now();
+
+        if let Ok(path) = env::var("EG_SIMULATOR_CHECK") {
             let output = display.to_rgb_output_image(&self.output_settings);
 
             let png_file = BufReader::new(File::open(path).unwrap());
@@ -73,10 +77,10 @@ impl Window {
                 "display content doesn't match PNG file",
             );
 
-            std::process::exit(0);
+            process::exit(0);
         }
 
-        if let Ok(path) = std::env::var("EG_SIMULATOR_CHECK_RAW") {
+        if let Ok(path) = env::var("EG_SIMULATOR_CHECK_RAW") {
             let expected = SimulatorDisplay::load_png(path).unwrap();
 
             assert!(
@@ -93,23 +97,23 @@ impl Window {
                 "display content doesn't match PNG file",
             );
 
-            std::process::exit(0);
+            process::exit(0);
         }
 
-        if let Ok(path) = std::env::var("EG_SIMULATOR_DUMP") {
+        if let Ok(path) = env::var("EG_SIMULATOR_DUMP") {
             display
                 .to_rgb_output_image(&self.output_settings)
                 .save_png(path)
                 .unwrap();
-            std::process::exit(0);
+            process::exit(0);
         }
 
-        if let Ok(path) = std::env::var("EG_SIMULATOR_DUMP_RAW") {
+        if let Ok(path) = env::var("EG_SIMULATOR_DUMP_RAW") {
             display
                 .to_rgb_output_image(&OutputSettings::default())
                 .save_png(path)
                 .unwrap();
-            std::process::exit(0);
+            process::exit(0);
         }
 
         #[cfg(feature = "with-sdl")]
@@ -128,6 +132,8 @@ impl Window {
             framebuffer.update(display);
             sdl_window.update(&framebuffer);
         }
+
+        thread::sleep(start + TARGET_MS_PER_FRAME - Instant::now());
     }
 
     /// Shows a static display.
@@ -162,4 +168,3 @@ impl Window {
             .events(&self.output_settings)
     }
 }
-
