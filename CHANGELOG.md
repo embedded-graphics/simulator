@@ -6,6 +6,8 @@
 
 ## [Unreleased] - ReleaseDate
 
+## [0.4.1] - 2023-03-06
+
 ### Added
 
 - [#45](https://github.com/embedded-graphics/simulator/pull/45) Added `OutputSettingsBuilder::max_fps` to set the maximum FPS of the simulator.
@@ -112,7 +114,8 @@
 - The builtin simulator now supports colour pixel types, like `RGB565`.
 
 <!-- next-url -->
-[unreleased]: https://github.com/embedded-graphics/embedded-graphics-simulator/compare/v0.4.0...HEAD
+[unreleased]: https://github.com/embedded-graphics/embedded-graphics-simulator/compare/v0.4.1...HEAD
+[0.4.1]: https://github.com/embedded-graphics/embedded-graphics-simulator/compare/v0.4.0...v0.4.1
 
 [0.4.0]: https://github.com/embedded-graphics/embedded-graphics-simulator/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/embedded-graphics/embedded-graphics-simulator/compare/v0.3.0-beta.3...v0.3.0
