@@ -6,6 +6,14 @@
 
 ## [Unreleased] - ReleaseDate
 
+### Added
+
+- [#45](https://github.com/embedded-graphics/simulator/pull/45) Added `OutputSettingsBuilder::max_fps` to set the maximum FPS of the simulator.
+
+### Changed
+
+- [#45](https://github.com/embedded-graphics/simulator/pull/45) Limit simulator to 60FPS by default.
+
 ## [0.4.0] - 2022-09-19
 
 ### Changed

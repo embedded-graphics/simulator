@@ -28,6 +28,7 @@ pub struct Window {
     title: String,
     output_settings: OutputSettings,
     desired_loop_duration: Duration,
+    frame_start: Instant,
 }
 
 impl Window {
@@ -40,6 +41,7 @@ impl Window {
             title: String::from(title),
             output_settings: output_settings.clone(),
             desired_loop_duration: Duration::from_millis(1000 / output_settings.max_fps as u64),
+            frame_start: Instant::now(),
         }
     }
 
@@ -48,8 +50,6 @@ impl Window {
     where
         C: PixelColor + Into<Rgb888> + From<Rgb888>,
     {
-        let start = Instant::now();
-
         if let Ok(path) = env::var("EG_SIMULATOR_CHECK") {
             let output = display.to_rgb_output_image(&self.output_settings);
 
@@ -133,7 +133,12 @@ impl Window {
             sdl_window.update(&framebuffer);
         }
 
-        thread::sleep(start + self.desired_loop_duration - Instant::now());
+        thread::sleep(
+            (self.frame_start + self.desired_loop_duration)
+                .saturating_duration_since(Instant::now()),
+        );
+
+        self.frame_start = Instant::now();
     }
 
     /// Shows a static display.
