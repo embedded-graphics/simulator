@@ -6,6 +6,10 @@
 
 ## [Unreleased] - ReleaseDate
 
+### Changed
+
+- **(breaking)** [#46](https://github.com/embedded-graphics/simulator/pull/46) Bump minimum embedded-graphics version from 0.7.1 to 0.8.
+
 ## [0.4.1] - 2023-03-06
 
 ### Added
