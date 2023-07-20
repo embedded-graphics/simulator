@@ -14,6 +14,24 @@ use sdl2::{
 
 use crate::{OutputImage, OutputSettings, SimulatorDisplay};
 
+struct SdlContext {
+    video_subsystem: sdl2::VideoSubsystem,
+    event_pump: EventPump,
+}
+
+thread_local! {
+    static SDL_CONTEXT: std::cell::RefCell<SdlContext> = {
+        let sdl_context = sdl2::init().unwrap();
+        let video_subsystem = sdl_context.video().unwrap();
+        let event_pump = sdl_context.event_pump().unwrap();
+
+        std::cell::RefCell::new(SdlContext {
+            video_subsystem,
+            event_pump,
+        })
+    };
+}
+
 /// A derivation of [`sdl2::event::Event`] mapped to embedded-graphics coordinates
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 pub enum SimulatorEvent {
@@ -67,7 +85,6 @@ pub enum SimulatorEvent {
 
 pub struct SdlWindow {
     canvas: Canvas<sdl2::video::Window>,
-    event_pump: EventPump,
     window_texture: SdlWindowTexture,
     size: Size,
 }
@@ -81,19 +98,18 @@ impl SdlWindow {
     where
         C: PixelColor + Into<Rgb888>,
     {
-        let sdl_context = sdl2::init().unwrap();
-        let video_subsystem = sdl_context.video().unwrap();
-
         let size = output_settings.framebuffer_size(display);
 
-        let window = video_subsystem
-            .window(title, size.width, size.height)
-            .position_centered()
-            .build()
-            .unwrap();
+        let window = SDL_CONTEXT.with(|ctx| {
+            ctx.borrow_mut()
+                .video_subsystem
+                .window(title, size.width, size.height)
+                .position_centered()
+                .build()
+                .unwrap()
+        });
 
         let canvas = window.into_canvas().build().unwrap();
-        let event_pump = sdl_context.event_pump().unwrap();
 
         let window_texture = SdlWindowTextureBuilder {
             texture_creator: canvas.texture_creator(),
@@ -107,7 +123,6 @@ impl SdlWindow {
 
         Self {
             canvas,
-            event_pump,
             window_texture,
             size,
         }
@@ -138,8 +153,11 @@ impl SdlWindow {
         output_settings: &OutputSettings,
     ) -> impl Iterator<Item = SimulatorEvent> + '_ {
         let output_settings = output_settings.clone();
-        self.event_pump
-            .poll_iter()
+        let events: Vec<Event> =
+            SDL_CONTEXT.with(|ctx| ctx.borrow_mut().event_pump.poll_iter().collect());
+        events
+            .into_iter()
+            .filter(|e| e.get_window_id() == Some(self.canvas.window().id()))
             .filter_map(move |event| match event {
                 Event::Quit { .. }
                 | Event::KeyDown {
