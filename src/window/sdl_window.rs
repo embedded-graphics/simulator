@@ -155,9 +155,10 @@ impl SdlWindow {
         let output_settings = output_settings.clone();
         let events: Vec<Event> =
             SDL_CONTEXT.with(|ctx| ctx.borrow_mut().event_pump.poll_iter().collect());
+        let window_id = self.canvas.window().id();
         events
             .into_iter()
-            .filter(|e| e.get_window_id() == Some(self.canvas.window().id()))
+            .filter(move |e| e.get_window_id() == Some(window_id) || e.get_window_id().is_none())
             .filter_map(move |event| match event {
                 Event::Quit { .. }
                 | Event::KeyDown {
@@ -197,24 +198,52 @@ impl SdlWindow {
                     }
                 }
                 Event::MouseButtonUp {
-                    x, y, mouse_btn, ..
+                    x,
+                    y,
+                    mouse_btn,
+                    window_id,
+                    ..
                 } => {
+                    if window_id != window_id {
+                        return None;
+                    }
                     let point = output_settings.output_to_display(Point::new(x, y));
                     Some(SimulatorEvent::MouseButtonUp { point, mouse_btn })
                 }
                 Event::MouseButtonDown {
-                    x, y, mouse_btn, ..
+                    x,
+                    y,
+                    mouse_btn,
+                    window_id,
+                    ..
                 } => {
+                    if window_id != window_id {
+                        return None;
+                    }
                     let point = output_settings.output_to_display(Point::new(x, y));
                     Some(SimulatorEvent::MouseButtonDown { point, mouse_btn })
                 }
                 Event::MouseWheel {
-                    x, y, direction, ..
-                } => Some(SimulatorEvent::MouseWheel {
-                    scroll_delta: Point::new(x, y),
+                    x,
+                    y,
                     direction,
-                }),
-                Event::MouseMotion { x, y, .. } => {
+                    window_id,
+                    ..
+                } => {
+                    if window_id != window_id {
+                        return None;
+                    }
+                    Some(SimulatorEvent::MouseWheel {
+                        scroll_delta: Point::new(x, y),
+                        direction,
+                    })
+                }
+                Event::MouseMotion {
+                    x, y, window_id, ..
+                } => {
+                    if window_id != window_id {
+                        return None;
+                    }
                     let point = output_settings.output_to_display(Point::new(x, y));
                     Some(SimulatorEvent::MouseMove { point })
                 }
