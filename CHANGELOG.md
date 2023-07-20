@@ -6,6 +6,10 @@
 
 ## [Unreleased] - ReleaseDate
 
+### Changed
+
+- [#48] Allowed for multiple window to co-exist in the same application.
+
 ## [0.5.0] - 2023-05-14
 
 ### Changed
