@@ -1,4 +1,3 @@
-dev-version = false
 pre-release-replacements = [
   {file="CHANGELOG.md", prerelease=true, search="[Uu]nreleased", replace="{{version}}"},
   {file="CHANGELOG.md", prerelease=true, search="\\.\\.\\.HEAD", replace="...{{tag_name}}"},
