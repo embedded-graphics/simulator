@@ -7,6 +7,7 @@
 ## [Unreleased] - ReleaseDate
 
 - **(breaking)** [#49](https://github.com/embedded-graphics/simulator/pull/49) Bump Minimum Supported Rust Version (MSRV) to 1.71.1.
+- **(breaking)** [#52](https://github.com/embedded-graphics/simulator/pull/52) Bump `image` crate dependency to 0.24.7.
 
 ## [0.5.0] - 2023-05-14
 
