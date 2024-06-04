@@ -10,6 +10,13 @@
 
 - [#48] Allowed for multiple window to co-exist in the same application.
 
+## [0.6.0] - 2023-11-26
+
+### Changed
+
+- **(breaking)** [#49](https://github.com/embedded-graphics/simulator/pull/49) Bump Minimum Supported Rust Version (MSRV) to 1.71.1.
+- **(breaking)** [#52](https://github.com/embedded-graphics/simulator/pull/52) Bump `image` crate dependency to 0.24.7.
+
 ## [0.5.0] - 2023-05-14
 
 ### Changed
@@ -124,7 +131,8 @@
 - The builtin simulator now supports colour pixel types, like `RGB565`.
 
 <!-- next-url -->
-[unreleased]: https://github.com/embedded-graphics/embedded-graphics-simulator/compare/v0.5.0...HEAD
+[unreleased]: https://github.com/embedded-graphics/embedded-graphics-simulator/compare/v0.6.0...HEAD
+[0.6.0]: https://github.com/embedded-graphics/embedded-graphics-simulator/compare/v0.5.0...v0.6.0
 [0.5.0]: https://github.com/embedded-graphics/embedded-graphics-simulator/compare/v0.4.1...v0.5.0
 [0.4.1]: https://github.com/embedded-graphics/embedded-graphics-simulator/compare/v0.4.0...v0.4.1
 

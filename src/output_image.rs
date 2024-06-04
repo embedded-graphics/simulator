@@ -1,13 +1,14 @@
 use std::{convert::TryFrom, marker::PhantomData, path::Path};
 
+use base64::Engine;
 use embedded_graphics::{
     pixelcolor::{raw::ToBytes, Gray8, Rgb888, RgbColor},
     prelude::*,
     primitives::Rectangle,
 };
 use image::{
-    png::{CompressionType, FilterType, PngEncoder},
-    ImageBuffer, Luma, Pixel as _, Rgb,
+    codecs::png::{CompressionType, FilterType, PngEncoder},
+    ImageBuffer, ImageEncoder, Luma, Rgb,
 };
 
 use crate::{display::SimulatorDisplay, output_settings::OutputSettings};
@@ -99,18 +100,18 @@ impl<C: OutputImageColor> OutputImage<C> {
     pub fn to_base64_png(&self) -> image::ImageResult<String> {
         let png = self.encode_png()?;
 
-        Ok(base64::encode(&png))
+        Ok(base64::engine::general_purpose::STANDARD.encode(&png))
     }
 
     fn encode_png(&self) -> image::ImageResult<Vec<u8>> {
         let mut png = Vec::new();
 
         PngEncoder::new_with_quality(&mut png, CompressionType::Best, FilterType::default())
-            .encode(
+            .write_image(
                 self.data.as_ref(),
                 self.size.width,
                 self.size.height,
-                C::ImageColor::COLOR_TYPE,
+                C::IMAGE_COLOR_TYPE,
             )?;
 
         Ok(png)
@@ -130,12 +131,15 @@ impl<C> OriginDimensions for OutputImage<C> {
 
 pub trait OutputImageColor {
     type ImageColor: image::Pixel<Subpixel = u8> + 'static;
+    const IMAGE_COLOR_TYPE: image::ColorType;
 }
 
 impl OutputImageColor for Gray8 {
     type ImageColor = Luma<u8>;
+    const IMAGE_COLOR_TYPE: image::ColorType = image::ColorType::L8;
 }
 
 impl OutputImageColor for Rgb888 {
     type ImageColor = Rgb<u8>;
+    const IMAGE_COLOR_TYPE: image::ColorType = image::ColorType::Rgb8;
 }

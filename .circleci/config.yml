@@ -2,7 +2,7 @@
 precheck_steps: &precheck_steps
   resource_class: large
   docker:
-    - image: jamwaffles/circleci-embedded-graphics:1.61.0-0
+    - image: jamwaffles/circleci-embedded-graphics:1.71.1-0
       auth:
         username: jamwaffles
         password: $DOCKERHUB_PASSWORD
