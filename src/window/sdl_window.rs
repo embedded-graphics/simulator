@@ -19,7 +19,15 @@ struct SdlContext {
     event_pump: EventPump,
 }
 
+const MAXIMUM_GLOBAL_EVENT_PUMP_SIZE: usize = 32;
+
 thread_local! {
+    /// A global event pump that captures all events that are unhandled.
+    /// This will start dropping events if it's full, to avoid memory leaks.
+    static GLOBAL_EVENT_PUMP: std::cell::RefCell<Vec<Event>> = {
+        std::cell::RefCell::new(Vec::with_capacity(MAXIMUM_GLOBAL_EVENT_PUMP_SIZE))
+    };
+
     static SDL_CONTEXT: std::cell::RefCell<SdlContext> = {
         let sdl_context = sdl2::init().unwrap();
         let video_subsystem = sdl_context.video().unwrap();
@@ -147,108 +155,89 @@ impl SdlWindow {
     }
 
     /// Handle events
-    /// Return an iterator of all captured SimulatorEvent
+    /// Return an iterator of all captured SimulatorEvent for this window.
+    /// If an event is not targeted to this window, keep it in the global
+    /// event pump.
     pub fn events(
         &mut self,
         output_settings: &OutputSettings,
     ) -> impl Iterator<Item = SimulatorEvent> + '_ {
-        let output_settings = output_settings.clone();
-        let events: Vec<Event> =
-            SDL_CONTEXT.with(|ctx| ctx.borrow_mut().event_pump.poll_iter().collect());
         let window_id = self.canvas.window().id();
-        events
-            .into_iter()
-            .filter(move |e| e.get_window_id() == Some(window_id) || e.get_window_id().is_none())
-            .filter_map(move |event| match event {
-                Event::Quit { .. }
-                | Event::KeyDown {
-                    keycode: Some(Keycode::Escape),
-                    ..
-                } => Some(SimulatorEvent::Quit),
-                Event::KeyDown {
-                    keycode,
-                    keymod,
-                    repeat,
-                    ..
-                } => {
-                    if let Some(valid_keycode) = keycode {
-                        Some(SimulatorEvent::KeyDown {
-                            keycode: valid_keycode,
-                            keymod,
-                            repeat,
-                        })
-                    } else {
-                        None
-                    }
-                }
-                Event::KeyUp {
-                    keycode,
-                    keymod,
-                    repeat,
-                    ..
-                } => {
-                    if let Some(valid_keycode) = keycode {
-                        Some(SimulatorEvent::KeyUp {
-                            keycode: valid_keycode,
-                            keymod,
-                            repeat,
-                        })
-                    } else {
-                        None
-                    }
-                }
-                Event::MouseButtonUp {
-                    x,
-                    y,
-                    mouse_btn,
-                    window_id,
-                    ..
-                } => {
-                    if window_id != window_id {
-                        return None;
-                    }
-                    let point = output_settings.output_to_display(Point::new(x, y));
-                    Some(SimulatorEvent::MouseButtonUp { point, mouse_btn })
-                }
-                Event::MouseButtonDown {
-                    x,
-                    y,
-                    mouse_btn,
-                    window_id,
-                    ..
-                } => {
-                    if window_id != window_id {
-                        return None;
-                    }
-                    let point = output_settings.output_to_display(Point::new(x, y));
-                    Some(SimulatorEvent::MouseButtonDown { point, mouse_btn })
-                }
-                Event::MouseWheel {
-                    x,
-                    y,
-                    direction,
-                    window_id,
-                    ..
-                } => {
-                    if window_id != window_id {
-                        return None;
-                    }
-                    Some(SimulatorEvent::MouseWheel {
-                        scroll_delta: Point::new(x, y),
-                        direction,
-                    })
-                }
-                Event::MouseMotion {
-                    x, y, window_id, ..
-                } => {
-                    if window_id != window_id {
-                        return None;
-                    }
-                    let point = output_settings.output_to_display(Point::new(x, y));
-                    Some(SimulatorEvent::MouseMove { point })
-                }
-                _ => None,
+
+        // Pump the global pump, adding new events to it, and filters only the
+        // events that are for this window (or global).
+        let events = SDL_CONTEXT.with(|ctx| {
+            let mut bindings = ctx.borrow_mut();
+            let new_events = bindings.event_pump.poll_iter();
+
+            GLOBAL_EVENT_PUMP.with(|pump| {
+                let (events, remaining): (_, Vec<Event>) = pump
+                    .borrow_mut()
+                    .drain(..)
+                    .into_iter()
+                    .chain(new_events.into_iter())
+                    .partition(|e| {
+                        e.get_window_id() == Some(window_id) || e.get_window_id().is_none()
+                    });
+
+                // Limit the size of the global event pump to avoid memory leaks.
+                *pump.borrow_mut() =
+                    remaining[..remaining.len().min(MAXIMUM_GLOBAL_EVENT_PUMP_SIZE)].to_vec();
+                events
             })
+        });
+
+        let output_settings = output_settings.clone();
+        events.into_iter().filter_map(move |event| match event {
+            Event::Quit { .. }
+            | Event::KeyDown {
+                keycode: Some(Keycode::Escape),
+                ..
+            } => Some(SimulatorEvent::Quit),
+            Event::KeyDown {
+                keycode,
+                keymod,
+                repeat,
+                ..
+            } => keycode.map(|keycode| SimulatorEvent::KeyDown {
+                keycode,
+                keymod,
+                repeat,
+            }),
+            Event::KeyUp {
+                keycode,
+                keymod,
+                repeat,
+                ..
+            } => keycode.map(|keycode| SimulatorEvent::KeyUp {
+                keycode,
+                keymod,
+                repeat,
+            }),
+            Event::MouseButtonUp {
+                x, y, mouse_btn, ..
+            } => {
+                let point = output_settings.output_to_display(Point::new(x, y));
+                Some(SimulatorEvent::MouseButtonUp { point, mouse_btn })
+            }
+            Event::MouseButtonDown {
+                x, y, mouse_btn, ..
+            } => {
+                let point = output_settings.output_to_display(Point::new(x, y));
+                Some(SimulatorEvent::MouseButtonDown { point, mouse_btn })
+            }
+            Event::MouseWheel {
+                x, y, direction, ..
+            } => Some(SimulatorEvent::MouseWheel {
+                scroll_delta: Point::new(x, y),
+                direction,
+            }),
+            Event::MouseMotion { x, y, .. } => {
+                let point = output_settings.output_to_display(Point::new(x, y));
+                Some(SimulatorEvent::MouseMove { point })
+            }
+            _ => None,
+        })
     }
 }
 
