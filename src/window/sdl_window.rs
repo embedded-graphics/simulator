@@ -89,6 +89,8 @@ pub enum SimulatorEvent {
     },
     /// An exit event
     Quit,
+    /// A window event, containing the SDL2 window event
+    WindowEvent(sdl2::event::WindowEvent),
 }
 
 pub struct SdlWindow {
@@ -188,6 +190,8 @@ impl SdlWindow {
         });
 
         let output_settings = output_settings.clone();
+        // TODO: Handling of ESC key should be left to the application. They might
+        //       want to handle it differently.
         events.into_iter().filter_map(move |event| match event {
             Event::Quit { .. }
             | Event::KeyDown {
@@ -236,6 +240,7 @@ impl SdlWindow {
                 let point = output_settings.output_to_display(Point::new(x, y));
                 Some(SimulatorEvent::MouseMove { point })
             }
+            Event::Window { win_event, .. } => Some(SimulatorEvent::WindowEvent(win_event)),
             _ => None,
         })
     }

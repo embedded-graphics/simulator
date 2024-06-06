@@ -16,6 +16,7 @@ use embedded_graphics::{
 use embedded_graphics_simulator::{
     sdl2::Keycode, OutputSettings, SimulatorDisplay, SimulatorEvent, Window,
 };
+use sdl2::event::WindowEvent;
 
 const BACKGROUND_COLOR: Rgb888 = Rgb888::BLACK;
 const FOREGROUND_COLOR: Rgb888 = Rgb888::RED;
@@ -42,6 +43,7 @@ fn move_circle(
 enum LoopResult {
     Continue,
     AddNewWindow,
+    RemoveWindow,
     Quit,
 }
 
@@ -63,6 +65,7 @@ fn handle_loop(
                     Keycode::Up => Point::new(0, -KEYBOARD_DELTA),
                     Keycode::Down => Point::new(0, KEYBOARD_DELTA),
                     Keycode::N => return Ok(LoopResult::AddNewWindow),
+                    Keycode::Escape => return Ok(LoopResult::RemoveWindow),
                     _ => Point::zero(),
                 };
                 let new_position = *position + delta;
@@ -73,6 +76,7 @@ fn handle_loop(
                 move_circle(display, *position, point)?;
                 *position = point;
             }
+            SimulatorEvent::WindowEvent(WindowEvent::Close) => return Ok(LoopResult::RemoveWindow),
             _ => {}
         }
     }
@@ -96,7 +100,12 @@ fn main() -> Result<(), core::convert::Infallible> {
     }
 
     'running: loop {
-        for (display, window, position) in windows.iter_mut() {
+        // When no windows are opened, exit the application.
+        if windows.is_empty() {
+            break;
+        }
+
+        for (i, (display, window, position)) in windows.iter_mut().enumerate() {
             match handle_loop(window, display, position)? {
                 LoopResult::Continue => {}
                 LoopResult::AddNewWindow => {
@@ -112,6 +121,10 @@ fn main() -> Result<(), core::convert::Infallible> {
                         .draw(&mut display)?;
 
                     windows.push((display, window, position));
+                    break;
+                }
+                LoopResult::RemoveWindow => {
+                    windows.swap_remove(i);
                     break;
                 }
                 LoopResult::Quit => {
