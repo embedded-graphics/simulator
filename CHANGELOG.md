@@ -6,6 +6,8 @@
 
 ## [Unreleased] - ReleaseDate
 
+- **(breaking)** [#55](https://github.com/embedded-graphics/simulator/pull/55) Bump the following crate dependencies: `image` to 0.25.1, `base64` to 0.22.1, `sdl2` to 0.37.0
+
 ## [0.6.0] - 2023-11-26
 
 ### Changed
