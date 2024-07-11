@@ -187,7 +187,7 @@ where
 
         if C::Raw::BITS_PER_PIXEL >= 8 {
             for pixel in self.pixels.iter() {
-                bytes.extend_from_slice(&pixel_to_bytes(*pixel).as_ref())
+                bytes.extend_from_slice(pixel_to_bytes(*pixel).as_ref())
             }
         } else {
             let pixels_per_byte = 8 / C::Raw::BITS_PER_PIXEL;

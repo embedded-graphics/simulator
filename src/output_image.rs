@@ -91,7 +91,7 @@ impl<C: OutputImageColor> OutputImage<C> {
     pub fn save_png<PATH: AsRef<Path>>(&self, path: PATH) -> image::ImageResult<()> {
         let png = self.encode_png()?;
 
-        std::fs::write(path, &png)?;
+        std::fs::write(path, png)?;
 
         Ok(())
     }
@@ -100,7 +100,7 @@ impl<C: OutputImageColor> OutputImage<C> {
     pub fn to_base64_png(&self) -> image::ImageResult<String> {
         let png = self.encode_png()?;
 
-        Ok(base64::engine::general_purpose::STANDARD.encode(&png))
+        Ok(base64::engine::general_purpose::STANDARD.encode(png))
     }
 
     fn encode_png(&self) -> image::ImageResult<Vec<u8>> {
