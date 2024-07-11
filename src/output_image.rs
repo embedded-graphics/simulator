@@ -111,7 +111,7 @@ impl<C: OutputImageColor> OutputImage<C> {
                 self.data.as_ref(),
                 self.size.width,
                 self.size.height,
-                C::IMAGE_COLOR_TYPE,
+                C::IMAGE_COLOR_TYPE.into(),
             )?;
 
         Ok(png)
