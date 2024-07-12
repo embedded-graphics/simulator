@@ -126,7 +126,7 @@ impl SdlWindow {
         });
 
         self.canvas
-            .copy(&self.window_texture.borrow_texture(), None, None)
+            .copy(self.window_texture.borrow_texture(), None, None)
             .unwrap();
         self.canvas.present();
     }
@@ -151,33 +151,21 @@ impl SdlWindow {
                     keymod,
                     repeat,
                     ..
-                } => {
-                    if let Some(valid_keycode) = keycode {
-                        Some(SimulatorEvent::KeyDown {
-                            keycode: valid_keycode,
-                            keymod,
-                            repeat,
-                        })
-                    } else {
-                        None
-                    }
-                }
+                } => keycode.map(|valid_keycode| SimulatorEvent::KeyDown {
+                    keycode: valid_keycode,
+                    keymod,
+                    repeat,
+                }),
                 Event::KeyUp {
                     keycode,
                     keymod,
                     repeat,
                     ..
-                } => {
-                    if let Some(valid_keycode) = keycode {
-                        Some(SimulatorEvent::KeyUp {
-                            keycode: valid_keycode,
-                            keymod,
-                            repeat,
-                        })
-                    } else {
-                        None
-                    }
-                }
+                } => keycode.map(|valid_keycode| SimulatorEvent::KeyUp {
+                    keycode: valid_keycode,
+                    keymod,
+                    repeat,
+                }),
                 Event::MouseButtonUp {
                     x, y, mouse_btn, ..
                 } => {

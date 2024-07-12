@@ -49,6 +49,7 @@ impl Default for OutputSettings {
 }
 
 /// Output settings builder.
+#[derive(Default)]
 pub struct OutputSettingsBuilder {
     scale: Option<u32>,
     pixel_spacing: Option<u32>,
@@ -59,12 +60,7 @@ pub struct OutputSettingsBuilder {
 impl OutputSettingsBuilder {
     /// Creates new output settings builder.
     pub fn new() -> Self {
-        Self {
-            scale: None,
-            pixel_spacing: None,
-            theme: BinaryColorTheme::Default,
-            max_fps: None,
-        }
+        Self::default()
     }
 
     /// Sets the pixel scale.

@@ -1,9 +1,10 @@
 use embedded_graphics::pixelcolor::{Rgb888, RgbColor};
 
 /// Color theme for binary displays
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]
 pub enum BinaryColorTheme {
     /// A simple on/off, non-styled display with black background and white pixels
+    #[default]
     Default,
 
     /// Inverted colors.

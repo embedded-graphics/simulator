@@ -130,7 +130,7 @@ impl Window {
             let sdl_window = self.sdl_window.as_mut().unwrap();
 
             framebuffer.update(display);
-            sdl_window.update(&framebuffer);
+            sdl_window.update(framebuffer);
         }
 
         thread::sleep(
@@ -149,7 +149,7 @@ impl Window {
     where
         C: PixelColor + Into<Rgb888> + From<Rgb888>,
     {
-        self.update(&display);
+        self.update(display);
 
         #[cfg(feature = "with-sdl")]
         'running: loop {
