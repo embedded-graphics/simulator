@@ -28,5 +28,4 @@ ouroboros = { version = "0.18.0", optional = true }
 
 [features]
 default = ["with-sdl"]
-fixed_point = ["embedded-graphics/fixed_point"]
 with-sdl = ["sdl2", "ouroboros"]
