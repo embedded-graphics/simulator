@@ -6,7 +6,13 @@
 
 ## [Unreleased] - ReleaseDate
 
+### Removed
+
+- **(breaking)** [#57](https://github.com/embedded-graphics/simulator/pull/57) Remove unused `fixed_point` feature.
+
 ## [0.7.0] - 2024-09-10
+
+### Changed
 
 - **(breaking)** [#55](https://github.com/embedded-graphics/simulator/pull/55) Bump the following crate dependencies: `image` to 0.25.1, `base64` to 0.22.1, `sdl2` to 0.37.0
 
