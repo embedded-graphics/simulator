@@ -6,6 +6,8 @@
 
 ## [Unreleased] - ReleaseDate
 
+## [0.7.0] - 2024-09-10
+
 - **(breaking)** [#55](https://github.com/embedded-graphics/simulator/pull/55) Bump the following crate dependencies: `image` to 0.25.1, `base64` to 0.22.1, `sdl2` to 0.37.0
 
 ## [0.6.0] - 2023-11-26
@@ -129,7 +131,8 @@
 - The builtin simulator now supports colour pixel types, like `RGB565`.
 
 <!-- next-url -->
-[unreleased]: https://github.com/embedded-graphics/embedded-graphics-simulator/compare/v0.6.0...HEAD
+[unreleased]: https://github.com/embedded-graphics/embedded-graphics-simulator/compare/v0.7.0...HEAD
+[0.7.0]: https://github.com/embedded-graphics/embedded-graphics-simulator/compare/v0.6.0...v0.7.0
 [0.6.0]: https://github.com/embedded-graphics/embedded-graphics-simulator/compare/v0.5.0...v0.6.0
 [0.5.0]: https://github.com/embedded-graphics/embedded-graphics-simulator/compare/v0.4.1...v0.5.0
 [0.4.1]: https://github.com/embedded-graphics/embedded-graphics-simulator/compare/v0.4.0...v0.4.1
