@@ -176,7 +176,7 @@ pub mod sdl2 {
 pub use crate::{
     display::SimulatorDisplay,
     output_image::OutputImage,
-    output_settings::{OutputSettings, OutputSettingsBuilder},
+    output_settings::{OutputSettings, OutputSettingsBuilder, PixelShape},
     theme::BinaryColorTheme,
     window::Window,
 };

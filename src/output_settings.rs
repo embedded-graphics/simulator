@@ -10,8 +10,21 @@ pub struct OutputSettings {
     pub pixel_spacing: u32,
     /// Binary color theme.
     pub theme: BinaryColorTheme,
+    /// Pixel shape.
+    pub pixel_shape: PixelShape,
     /// Maximum frames per second shown in the window.
     pub max_fps: u32,
+}
+
+/// Pixel shape.
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]
+pub enum PixelShape {
+    /// Square pixels
+    #[default]
+    Square,
+
+    /// Round pixels
+    Dot,
 }
 
 impl OutputSettings {
@@ -54,6 +67,7 @@ pub struct OutputSettingsBuilder {
     scale: Option<u32>,
     pixel_spacing: Option<u32>,
     theme: BinaryColorTheme,
+    pixel_shape: Option<PixelShape>,
     max_fps: Option<u32>,
 }
 
@@ -112,6 +126,14 @@ impl OutputSettingsBuilder {
         self
     }
 
+
+    /// Sets the pixel shape.
+    pub fn pixel_shape(mut self, pixel_shape: PixelShape) -> Self {
+        self.pixel_shape = Some(pixel_shape);
+
+        self
+    }
+
     /// Sets the FPS limit of the window.
     pub fn max_fps(mut self, max_fps: u32) -> Self {
         self.max_fps = Some(max_fps);
@@ -125,6 +147,7 @@ impl OutputSettingsBuilder {
             scale: self.scale.unwrap_or(1),
             pixel_spacing: self.pixel_spacing.unwrap_or(0),
             theme: self.theme,
+            pixel_shape: self.pixel_shape.unwrap_or(PixelShape::Square),
             max_fps: self.max_fps.unwrap_or(60),
         }
     }

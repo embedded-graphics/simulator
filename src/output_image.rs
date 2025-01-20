@@ -6,12 +6,14 @@ use embedded_graphics::{
     prelude::*,
     primitives::Rectangle,
 };
+use embedded_graphics::primitives::Circle;
 use image::{
     codecs::png::{CompressionType, FilterType, PngEncoder},
     ImageBuffer, ImageEncoder, Luma, Rgb,
 };
 
 use crate::{display::SimulatorDisplay, output_settings::OutputSettings};
+use crate::output_settings::PixelShape;
 
 /// Output image.
 ///
@@ -74,17 +76,32 @@ where
             let output_color = C::from(themed_color).to_be_bytes();
             let output_color = output_color.as_ref();
 
-            for p in Rectangle::new(p * pixel_pitch, pixel_size).points() {
-                if let Ok((x, y)) = <(u32, u32)>::try_from(p) {
-                    let start_index = (x + y * self.size.width) as usize * output_color.len();
 
-                    self.data[start_index..start_index + output_color.len()]
-                        .copy_from_slice(output_color)
+            match self.output_settings.pixel_shape {
+                    PixelShape::Square => {
+                        for p in Rectangle::new(p * pixel_pitch, pixel_size).points() {
+                            if let Ok((x, y)) = <(u32, u32)>::try_from(p) {
+                                let start_index = (x + y * self.size.width) as usize * output_color.len();
+
+                                self.data[start_index..start_index + output_color.len()]
+                                    .copy_from_slice(output_color)
+                            }
+                        }
+                    }
+                    PixelShape::Dot => {
+                        for p in Circle::new(p * pixel_pitch + Point::new(pixel_pitch / 2, pixel_pitch / 2), self.output_settings.scale/ 2).points() {
+                            if let Ok((x, y)) = <(u32, u32)>::try_from(p) {
+                                let start_index = (x + y * self.size.width) as usize * output_color.len();
+
+                                self.data[start_index..start_index + output_color.len()]
+                                    .copy_from_slice(output_color)
+                            }
+                        }
+                    }
                 }
             }
         }
     }
-}
 
 impl<C: OutputImageColor> OutputImage<C> {
     /// Saves the image content to a PNG file.
