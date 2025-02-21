@@ -66,7 +66,6 @@ pub enum SimulatorEvent {
 }
 
 pub struct SdlWindow {
-    sdl_context: Sdl,
     canvas: Canvas<sdl2::video::Window>,
     event_pump: EventPump,
     window_texture: SdlWindowTexture,
@@ -76,13 +75,13 @@ pub struct SdlWindow {
 impl SdlWindow {
     pub fn new<C>(
         display: &SimulatorDisplay<C>,
+        sdl_context: &mut Sdl,
         title: &str,
         output_settings: &OutputSettings,
     ) -> Self
     where
         C: PixelColor + Into<Rgb888>,
     {
-        let sdl_context = sdl2::init().unwrap();
         let video_subsystem = sdl_context.video().unwrap();
 
         let size = output_settings.framebuffer_size(display);
@@ -107,16 +106,11 @@ impl SdlWindow {
         .build();
 
         Self {
-            sdl_context,
             canvas,
             event_pump,
             window_texture,
             size,
         }
-    }
-
-    pub fn context(&self) -> Sdl {
-        self.sdl_context.clone()
     }
 
     pub fn update(&mut self, framebuffer: &OutputImage<Rgb888>) {

@@ -8,6 +8,8 @@ use std::{
 };
 
 use embedded_graphics::{pixelcolor::Rgb888, prelude::*};
+#[cfg(feature = "with-sdl")]
+use sdl2::Sdl;
 
 use crate::{
     display::SimulatorDisplay, output_image::OutputImage, output_settings::OutputSettings,
@@ -25,6 +27,8 @@ pub struct Window {
     framebuffer: Option<OutputImage<Rgb888>>,
     #[cfg(feature = "with-sdl")]
     sdl_window: Option<SdlWindow>,
+    #[cfg(feature = "with-sdl")]
+    sdl_context: Sdl,
     title: String,
     output_settings: OutputSettings,
     desired_loop_duration: Duration,
@@ -38,6 +42,8 @@ impl Window {
             framebuffer: None,
             #[cfg(feature = "with-sdl")]
             sdl_window: None,
+            #[cfg(feature = "with-sdl")]
+            sdl_context: sdl2::init().unwrap(),
             title: String::from(title),
             output_settings: output_settings.clone(),
             desired_loop_duration: Duration::from_millis(1000 / output_settings.max_fps as u64),
@@ -47,8 +53,8 @@ impl Window {
 
     /// Get raw SDL context for external use (e.g. audio context).
     #[cfg(feature = "with-sdl")]
-    pub fn context(&mut self) -> sdl2::Sdl {
-        self.sdl_window.as_mut().unwrap().context()
+    pub fn sdl_context(&mut self) -> sdl2::Sdl {
+        self.sdl_context.clone()
     }
 
     /// Updates the window.
@@ -129,7 +135,12 @@ impl Window {
             }
 
             if self.sdl_window.is_none() {
-                self.sdl_window = Some(SdlWindow::new(display, &self.title, &self.output_settings));
+                self.sdl_window = Some(SdlWindow::new(
+                    display,
+                    &mut self.sdl_context,
+                    &self.title,
+                    &self.output_settings,
+                ));
             }
 
             let framebuffer = self.framebuffer.as_mut().unwrap();
