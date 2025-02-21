@@ -9,7 +9,7 @@ use sdl2::{
     pixels::PixelFormatEnum,
     render::{Canvas, Texture, TextureCreator},
     video::WindowContext,
-    EventPump,
+    EventPump, Sdl,
 };
 
 use crate::{OutputImage, OutputSettings, SimulatorDisplay};
@@ -66,6 +66,7 @@ pub enum SimulatorEvent {
 }
 
 pub struct SdlWindow {
+    sdl_context: Sdl,
     canvas: Canvas<sdl2::video::Window>,
     event_pump: EventPump,
     window_texture: SdlWindowTexture,
@@ -106,11 +107,16 @@ impl SdlWindow {
         .build();
 
         Self {
+            sdl_context,
             canvas,
             event_pump,
             window_texture,
             size,
         }
+    }
+
+    pub fn context(&self) -> Sdl {
+        self.sdl_context.clone()
     }
 
     pub fn update(&mut self, framebuffer: &OutputImage<Rgb888>) {

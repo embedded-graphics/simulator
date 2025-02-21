@@ -6,6 +6,10 @@
 
 ## [Unreleased] - ReleaseDate
 
+### Added
+
+- Added `Window::context` to expose the SDL context for external use, for example audio playback or recording.
+
 ## [0.7.0] - 2024-09-10
 
 - **(breaking)** [#55](https://github.com/embedded-graphics/simulator/pull/55) Bump the following crate dependencies: `image` to 0.25.1, `base64` to 0.22.1, `sdl2` to 0.37.0

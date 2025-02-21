@@ -45,6 +45,12 @@ impl Window {
         }
     }
 
+    /// Get raw SDL context for external use (e.g. audio context).
+    #[cfg(feature = "with-sdl")]
+    pub fn context(&mut self) -> sdl2::Sdl {
+        self.sdl_window.as_mut().unwrap().context()
+    }
+
     /// Updates the window.
     pub fn update<C>(&mut self, display: &SimulatorDisplay<C>)
     where
