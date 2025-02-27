@@ -62,7 +62,7 @@ fn main() -> Result<(), core::convert::Infallible> {
     let text = Text::new("Press space...", text_position, text_style);
 
     let mut display: SimulatorDisplay<BinaryColor> = SimulatorDisplay::new(Size::new(128, 64));
-    _ = text.draw(&mut display);
+    text.draw(&mut display).unwrap();
     'running: loop {
         window.update(&display);
 
