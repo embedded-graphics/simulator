@@ -77,13 +77,13 @@ fn main() -> Result<(), core::convert::Infallible> {
                     keycode, repeat, ..
                 } if keycode == Keycode::Space && !repeat => {
                     gate.store(true, Ordering::SeqCst);
-                    _ = display.clear(BinaryColor::On);
+                    display.clear(BinaryColor::On).unwrap();
                 }
                 SimulatorEvent::KeyUp { keycode, .. } => match keycode {
                     Keycode::Space => {
                         gate.store(false, Ordering::SeqCst);
-                        _ = display.clear(BinaryColor::Off);
-                        _ = text.draw(&mut display);
+                        display.clear(BinaryColor::Off).unwrap();
+                        text.draw(&mut display).unwrap();
                     }
                     _ => {}
                 },
