@@ -8,7 +8,7 @@
 
 ### Added
 
-- [#62] Added an SDL based audio example (audio.rs).
+- [#62] Added an SDL based audio example (sdl-audio.rs).
 
 ## [0.7.0] - 2024-09-10
 
