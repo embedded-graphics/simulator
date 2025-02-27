@@ -115,19 +115,20 @@ impl AudioCallback for AudioWrapper {
 
     fn callback(&mut self, out: &mut [f32]) {
         let gate = self.gate.load(Ordering::SeqCst);
+        if !gate {
+           out.fill(0);
+           return;
+        }
+        
         for x in out.iter_mut() {
-            if gate {
-                self.phase += self.pitch / SAMPLE_RATE as f32;
-                *x = self.phase.sin();
+            self.phase += self.pitch / SAMPLE_RATE as f32;
+            *x = self.phase.sin();
 
-                if self.pitch > PITCH_MAX {
-                    self.pitch = PITCH_MIN;
-                }
-
-                self.pitch += 0.5;
-            } else {
-                *x = 0.0
+            if self.pitch > PITCH_MAX {
+                self.pitch = PITCH_MIN;
             }
+            
+            self.pitch += 0.5;
         }
     }
 }
