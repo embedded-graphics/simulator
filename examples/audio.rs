@@ -1,6 +1,7 @@
 //! # Example: Audio
 //!
-//! This example allows you to
+//! This example demonstrates how SDL can be used not only to implement virtual displays, but at the same time
+//! to use it as an audio device. Here we implement an oscillator with a modulation of its pitch.
 
 extern crate embedded_graphics;
 extern crate embedded_graphics_simulator;
@@ -27,6 +28,7 @@ const PITCH_MIN: f32 = 440.0;
 const PITCH_MAX: f32 = 10000.0;
 
 fn main() -> Result<(), core::convert::Infallible> {
+    // Prepare the audio "engine" with gate control
     let gate = Arc::new(AtomicBool::new(false));
     let audio_wrapper = AudioWrapper::new(gate.clone());
 
@@ -35,6 +37,8 @@ fn main() -> Result<(), core::convert::Infallible> {
         channels: Some(1),
         samples: Some(32),
     };
+
+    // This is the initialisation of SDL and capturing its audio device.
     let audio_device = sdl2::init()
         .unwrap()
         .audio()
@@ -48,6 +52,9 @@ fn main() -> Result<(), core::convert::Infallible> {
         .scale(4)
         .theme(embedded_graphics_simulator::BinaryColorTheme::OledWhite)
         .build();
+
+    // This is the window initialisation. It calls the same SDL init function inside, which
+    // is allowed as long as the init calls are from the same OS thread.
     let mut window = Window::new("Simulator audio example", &output_settings);
 
     let text_style = MonoTextStyle::new(&FONT_6X10, BinaryColor::On);
