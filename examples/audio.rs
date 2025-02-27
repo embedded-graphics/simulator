@@ -27,6 +27,10 @@ const SAMPLE_RATE: i32 = 44100;
 const PITCH_MIN: f32 = 440.0;
 const PITCH_MAX: f32 = 10000.0;
 
+const PERIOD: f32 = 0.5; // seconds
+const SAMPLES_PER_PERIOD: f32 = SAMPLE_RATE as f32 * PERIOD;
+const PITCH_CHANGE_PER_SAMPLE: f32 = (PITCH_MAX - PITCH_MIN) / SAMPLES_PER_PERIOD;
+
 fn main() -> Result<(), core::convert::Infallible> {
     // Prepare the audio "engine" with gate control
     let gate = Arc::new(AtomicBool::new(false));
@@ -113,10 +117,10 @@ impl AudioCallback for AudioWrapper {
     fn callback(&mut self, out: &mut [f32]) {
         let gate = self.gate.load(Ordering::SeqCst);
         if !gate {
-           out.fill(0);
-           return;
+            out.fill(0.0);
+            return;
         }
-        
+
         for x in out.iter_mut() {
             self.phase += self.pitch / SAMPLE_RATE as f32;
             *x = self.phase.sin();
@@ -124,8 +128,8 @@ impl AudioCallback for AudioWrapper {
             if self.pitch > PITCH_MAX {
                 self.pitch = PITCH_MIN;
             }
-            
-            self.pitch += 0.5;
+
+            self.pitch += PITCH_CHANGE_PER_SAMPLE;
         }
     }
 }
