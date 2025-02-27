@@ -69,14 +69,11 @@ fn main() -> Result<(), core::convert::Infallible> {
         for event in window.events() {
             match event {
                 SimulatorEvent::Quit => break 'running,
-                SimulatorEvent::KeyDown { keycode, .. } => {
-                    match keycode {
-                        Keycode::Space => {
-                            gate.store(true, Ordering::SeqCst);
-                            _ = display.clear(BinaryColor::On);
-                        }
-                        _ => {}
-                    };
+                SimulatorEvent::KeyDown {
+                    keycode, repeat, ..
+                } if keycode == Keycode::Space && !repeat => {
+                    gate.store(true, Ordering::SeqCst);
+                    _ = display.clear(BinaryColor::On);
                 }
                 SimulatorEvent::KeyUp { keycode, .. } => match keycode {
                     Keycode::Space => {
