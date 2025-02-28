@@ -39,14 +39,17 @@ fn main() -> Result<(), core::convert::Infallible> {
         samples: Some(32),
     };
 
-    // This is the initialisation of SDL and capturing its audio device.
-    let audio_device = sdl2::init()
-        .unwrap()
-        .audio()
-        .unwrap()
-        .open_playback(None, &audio_spec, |_| audio_wrapper)
-        .unwrap();
+    // Initialize the SDL audio subsystem.
+    //
+    // `sdl2` allows multiple instances of the SDL context to exist, which makes
+    // it possible to access SDL subsystems which aren't used by the simulator.
+    // But keep in mind that only one `EventPump` can exists and the simulator
+    // window creation will fail if the `EventPump` is claimed in advance.
+    let sdl = sdl2::init().unwrap();
+    let audio_subsystem = sdl.audio().unwrap();
 
+    // Start audio playback by opening the device and setting the custom callback.
+    let audio_device = audio_subsystem.open_playback(None, &audio_spec, |_| audio_wrapper).unwrap();
     audio_device.resume();
 
     let output_settings = OutputSettingsBuilder::new()
