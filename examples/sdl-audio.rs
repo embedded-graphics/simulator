@@ -3,9 +3,6 @@
 //! This example demonstrates how SDL can be used not only to implement virtual displays, but at the same time
 //! to use it as an audio device. Here we implement an oscillator with a modulation of its pitch.
 
-extern crate embedded_graphics;
-extern crate embedded_graphics_simulator;
-
 use std::sync::{
     atomic::{AtomicBool, Ordering},
     Arc,
