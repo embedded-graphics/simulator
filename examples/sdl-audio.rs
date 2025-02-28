@@ -57,8 +57,6 @@ fn main() -> Result<(), core::convert::Infallible> {
         .theme(embedded_graphics_simulator::BinaryColorTheme::OledWhite)
         .build();
 
-    // This is the window initialisation. It calls the same SDL init function inside, which
-    // is allowed as long as the init calls are from the same OS thread.
     let mut window = Window::new("Simulator audio example", &output_settings);
 
     let text_style = MonoTextStyle::new(&FONT_6X10, BinaryColor::On);
