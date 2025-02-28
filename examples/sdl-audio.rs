@@ -115,6 +115,7 @@ impl AudioCallback for AudioWrapper {
     fn callback(&mut self, out: &mut [f32]) {
         let gate = self.gate.load(Ordering::SeqCst);
         if !gate {
+            self.pitch = PITCH_MIN;
             out.fill(0.0);
             return;
         }
