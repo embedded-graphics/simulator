@@ -24,7 +24,11 @@ pub enum BinaryColorTheme {
 
     /// An on/off OLED-like display with a dark blue background and light blue pixels
     OledBlue,
+
+    /// An on/off OLED-like display with a black background and orange pixels
+    OledOrange,
 }
+
 
 fn map_color(color: Rgb888, color_off: Rgb888, color_on: Rgb888) -> Rgb888 {
     match color {
@@ -54,6 +58,9 @@ impl BinaryColorTheme {
                 map_color(color, Rgb888::new(0, 20, 40), Rgb888::new(0, 210, 255))
             }
             BinaryColorTheme::OledWhite => map_color(color, Rgb888::new(20, 20, 20), Rgb888::WHITE),
+            BinaryColorTheme::OledOrange => {
+                map_color(color, Rgb888::new(0, 0, 0), Rgb888::new(255, 100, 0))
+            }
         }
     }
 }
