@@ -8,6 +8,7 @@
 
 ### Added
 
+- [#63] Add support for custom colour themes `BinaryColorTheme::Custom(Rgb888, Rgb888)`
 - [#62] Added an SDL based audio example (sdl-audio.rs).
 
 ## [0.7.0] - 2024-09-10
