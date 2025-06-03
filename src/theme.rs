@@ -30,7 +30,7 @@ pub enum BinaryColorTheme {
         /// The color used for the "off" state pixels.
         color_off: Rgb888,
         /// The color used for the "on" state pixels.
-        color_on: Rgb888
+        color_on: Rgb888,
     },
 }
 
