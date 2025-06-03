@@ -49,7 +49,9 @@ fn main() -> Result<(), core::convert::Infallible> {
     let audio_subsystem = sdl.audio().unwrap();
 
     // Start audio playback by opening the device and setting the custom callback.
-    let audio_device = audio_subsystem.open_playback(None, &audio_spec, |_| audio_wrapper).unwrap();
+    let audio_device = audio_subsystem
+        .open_playback(None, &audio_spec, |_| audio_wrapper)
+        .unwrap();
     audio_device.resume();
 
     let output_settings = OutputSettingsBuilder::new()
