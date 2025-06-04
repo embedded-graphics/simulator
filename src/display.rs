@@ -1,4 +1,10 @@
-use std::{convert::TryFrom, fs::File, io::BufReader, path::Path};
+use std::{
+    convert::TryFrom,
+    fs::File,
+    io::BufReader,
+    path::Path,
+    sync::atomic::{AtomicUsize, Ordering},
+};
 
 use embedded_graphics::{
     pixelcolor::{raw::ToBytes, BinaryColor, Gray8, Rgb888},
@@ -7,14 +13,23 @@ use embedded_graphics::{
 
 use crate::{output_image::OutputImage, output_settings::OutputSettings};
 
+static NEXT_ID: AtomicUsize = AtomicUsize::new(0);
+
 /// Simulator display.
-#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(Debug, Clone, Eq, PartialOrd, Ord, Hash)]
 pub struct SimulatorDisplay<C> {
     size: Size,
     pub(crate) pixels: Box<[C]>,
+    pub(crate) id: usize,
 }
 
 impl<C: PixelColor> SimulatorDisplay<C> {
+    fn new_common(size: Size, pixels: Box<[C]>) -> Self {
+        let id = NEXT_ID.fetch_add(1, Ordering::SeqCst);
+
+        Self { size, pixels, id }
+    }
+
     /// Creates a new display filled with a color.
     ///
     /// This constructor can be used if `C` doesn't implement `From<BinaryColor>` or another
@@ -23,7 +38,7 @@ impl<C: PixelColor> SimulatorDisplay<C> {
         let pixel_count = size.width as usize * size.height as usize;
         let pixels = vec![default_color; pixel_count].into_boxed_slice();
 
-        SimulatorDisplay { size, pixels }
+        SimulatorDisplay::new_common(size, pixels)
     }
 
     /// Returns the color of the pixel at a point.
@@ -75,13 +90,20 @@ impl<C: PixelColor> SimulatorDisplay<C> {
             .into_boxed_slice();
 
         if pixels.iter().any(|p| *p == BinaryColor::On) {
-            Some(SimulatorDisplay {
-                pixels,
-                size: self.size,
-            })
+            Some(SimulatorDisplay::new_common(self.size, pixels))
         } else {
             None
         }
+    }
+
+    /// Calculates the rendered size of this display based on the output settings.
+    ///
+    /// This method takes into account the [`scale`](OutputSettings::scale) and
+    /// [`pixel_spacing`](OutputSettings::pixel_spacing) settings to determine
+    /// the size of this display in output pixels.
+    pub fn output_size(&self, output_settings: &OutputSettings) -> Size {
+        self.size * output_settings.scale
+            + self.size.saturating_sub(Size::new_equal(1)) * output_settings.pixel_spacing
     }
 }
 
@@ -122,8 +144,8 @@ where
     /// // example: output_image.save_png("out.png")?;
     /// ```
     pub fn to_rgb_output_image(&self, output_settings: &OutputSettings) -> OutputImage<Rgb888> {
-        let mut output = OutputImage::new(self, output_settings);
-        output.update(self);
+        let mut output = OutputImage::new(self.output_size(output_settings));
+        output.draw_display(self, Point::zero(), output_settings);
 
         output
     }
@@ -152,8 +174,9 @@ where
         &self,
         output_settings: &OutputSettings,
     ) -> OutputImage<Gray8> {
-        let mut output = OutputImage::new(self, output_settings);
-        output.update(self);
+        let size = self.output_size(output_settings);
+        let mut output = OutputImage::new(size);
+        output.draw_display(self, Point::zero(), output_settings);
 
         output
     }
@@ -226,10 +249,10 @@ where
             .map(|p| Rgb888::new(p[0], p[1], p[2]).into())
             .collect();
 
-        Ok(Self {
-            size: Size::new(image.width(), image.height()),
+        Ok(Self::new_common(
+            Size::new(image.width(), image.height()),
             pixels,
-        })
+        ))
     }
 }
 
@@ -254,6 +277,12 @@ impl<C: PixelColor> DrawTarget for SimulatorDisplay<C> {
 impl<C> OriginDimensions for SimulatorDisplay<C> {
     fn size(&self) -> Size {
         self.size
+    }
+}
+
+impl<C: PartialEq> PartialEq for SimulatorDisplay<C> {
+    fn eq(&self, other: &Self) -> bool {
+        self.size == other.size && self.pixels == other.pixels
     }
 }
 
@@ -321,6 +350,7 @@ mod tests {
             .map(|c| BinaryColor::from(*c != 0))
             .collect::<Vec<_>>()
             .into_boxed_slice(),
+            id: 0,
         };
 
         let expected = [
@@ -345,6 +375,7 @@ mod tests {
             .map(|c| Gray2::new(*c))
             .collect::<Vec<_>>()
             .into_boxed_slice(),
+            id: 0,
         };
 
         let expected = [
@@ -370,6 +401,7 @@ mod tests {
             .map(|c| Gray4::new(*c))
             .collect::<Vec<_>>()
             .into_boxed_slice(),
+            id: 0,
         };
 
         let expected = [
@@ -398,6 +430,7 @@ mod tests {
                 .map(Gray8::new)
                 .collect::<Vec<_>>()
                 .into_boxed_slice(),
+            id: 0,
         };
 
         assert_eq!(&display.to_be_bytes(), &expected);
@@ -412,6 +445,7 @@ mod tests {
         let display = SimulatorDisplay {
             size: Size::new(2, 1),
             pixels: expected.clone().into_boxed_slice(),
+            id: 0,
         };
 
         assert_eq!(&display.to_be_bytes(), &[0x80, 0x00, 0x00, 0x01]);
@@ -425,6 +459,7 @@ mod tests {
         let display = SimulatorDisplay {
             size: Size::new(2, 1),
             pixels: expected.clone().into_boxed_slice(),
+            id: 0,
         };
 
         assert_eq!(

@@ -2,7 +2,7 @@ use std::cell::{RefCell, RefMut};
 
 use embedded_graphics::{
     pixelcolor::Rgb888,
-    prelude::{PixelColor, Point, Size},
+    prelude::{Point, Size},
 };
 use sdl2::{
     event::Event,
@@ -14,7 +14,7 @@ use sdl2::{
     EventPump,
 };
 
-use crate::{OutputImage, OutputSettings, SimulatorDisplay};
+use crate::{OutputImage, OutputSettings};
 
 /// A derivation of [`sdl2::event::Event`] mapped to embedded-graphics coordinates
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
@@ -153,18 +153,9 @@ pub struct SdlWindow {
 }
 
 impl SdlWindow {
-    pub fn new<C>(
-        display: &SimulatorDisplay<C>,
-        title: &str,
-        output_settings: &OutputSettings,
-    ) -> Self
-    where
-        C: PixelColor + Into<Rgb888>,
-    {
+    pub fn new(title: &str, size: Size) -> Self {
         let sdl_context = sdl2::init().unwrap();
         let video_subsystem = sdl_context.video().unwrap();
-
-        let size = output_settings.framebuffer_size(display);
 
         let window = video_subsystem
             .window(title, size.width, size.height)

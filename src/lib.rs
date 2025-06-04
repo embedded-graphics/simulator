@@ -158,9 +158,6 @@ mod output_settings;
 mod theme;
 mod window;
 
-#[cfg(feature = "with-sdl")]
-pub use window::SimulatorEvent;
-
 /// Re-exported types from sdl2 crate.
 ///
 /// The types in this module are used in the [`SimulatorEvent`] enum and are re-exported from the
@@ -180,3 +177,6 @@ pub use crate::{
     theme::BinaryColorTheme,
     window::Window,
 };
+
+#[cfg(feature = "with-sdl")]
+pub use window::{MultiWindow, SimulatorEvent, SimulatorEventsIter};
