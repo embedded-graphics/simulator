@@ -8,8 +8,12 @@
 
 ### Added
 
-- [#63] Added support for custom binary color themes (`BinaryColorTheme::Custom`).
-- [#62] Added an SDL based audio example (sdl-audio.rs).
+- [#63](https://github.com/embedded-graphics/simulator/pull/63) Added support for custom binary color themes (`BinaryColorTheme::Custom`).
+- [#62](https://github.com/embedded-graphics/simulator/pull/62) Added an SDL based audio example (sdl-audio.rs).
+
+### Changed
+
+- **(breaking)** [#65](https://github.com/embedded-graphics/simulator/pull/65) Bump Minimum Supported Rust Version (MSRV) to latest stable.
 
 ## [0.7.0] - 2024-09-10
 
