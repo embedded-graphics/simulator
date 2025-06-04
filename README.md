@@ -154,8 +154,7 @@ Cargo manifest documentation for more details.
 
 ## Minimum supported Rust version
 
-The minimum supported Rust version for embedded-graphics-simulator is `1.71.1` or greater.
-Ensure you have the correct version of Rust installed, preferably through <https://rustup.rs>.
+The `embedded-graphics-simulator` crate is tested to compile on the latest stable Rust release.
 
 ## License
 
