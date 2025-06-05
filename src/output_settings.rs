@@ -2,7 +2,7 @@ use crate::{display::SimulatorDisplay, theme::BinaryColorTheme};
 use embedded_graphics::prelude::*;
 
 /// Output settings.
-#[derive(Debug, PartialEq, Eq, Clone)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy)]
 pub struct OutputSettings {
     /// Pixel scale.
     pub scale: u32,

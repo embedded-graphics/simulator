@@ -17,7 +17,7 @@ use crate::{
 mod sdl_window;
 
 #[cfg(feature = "with-sdl")]
-pub use sdl_window::{SdlWindow, SimulatorEvent};
+pub use sdl_window::{SdlWindow, SimulatorEvent, SimulatorEventsIter};
 
 /// Simulator window
 #[allow(dead_code)]
@@ -160,15 +160,17 @@ impl Window {
         }
     }
 
-    /// Returns an iterator of all captured SimulatorEvents.
+    /// Returns an iterator of all captured simulator events.
     ///
     /// # Panics
     ///
-    /// Panics if called before [`update`](Self::update) is called at least once.
+    /// Panics if called before [`update`](Self::update) is called at least
+    /// once. Also panics if multiple instances of the iterator are used at the
+    /// same time.
     #[cfg(feature = "with-sdl")]
-    pub fn events(&mut self) -> impl Iterator<Item = SimulatorEvent> + '_ {
+    pub fn events(&self) -> SimulatorEventsIter<'_> {
         self.sdl_window
-            .as_mut()
+            .as_ref()
             .unwrap()
             .events(&self.output_settings)
     }

@@ -14,6 +14,7 @@
 ### Changed
 
 - **(breaking)** [#65](https://github.com/embedded-graphics/simulator/pull/65) Bump Minimum Supported Rust Version (MSRV) to latest stable.
+- [#66](https://github.com/embedded-graphics/simulator/pull/66) Changed `Window::events` to take `&self` instead of `&mut self`.
 
 ## [0.7.0] - 2024-09-10
 
