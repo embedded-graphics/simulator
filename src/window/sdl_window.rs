@@ -1,6 +1,8 @@
+use std::cell::{RefCell, RefMut};
+
 use embedded_graphics::{
     pixelcolor::Rgb888,
-    prelude::{PixelColor, Point, Size},
+    prelude::{Point, Size},
 };
 use sdl2::{
     event::Event,
@@ -12,7 +14,7 @@ use sdl2::{
     EventPump,
 };
 
-use crate::{OutputImage, OutputSettings, SimulatorDisplay};
+use crate::{OutputImage, OutputSettings};
 
 /// A derivation of [`sdl2::event::Event`] mapped to embedded-graphics coordinates
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
@@ -65,26 +67,95 @@ pub enum SimulatorEvent {
     Quit,
 }
 
+/// Iterator over simulator events.
+///
+/// See [`Window::events`](crate::Window::events) and
+/// [`MultiWindow::events`](crate::MultiWindow::events) for more details.
+pub struct SimulatorEventsIter<'a> {
+    event_pump: RefMut<'a, EventPump>,
+    output_settings: OutputSettings,
+}
+
+impl Iterator for SimulatorEventsIter<'_> {
+    type Item = SimulatorEvent;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        while let Some(event) = self.event_pump.poll_event() {
+            match event {
+                Event::Quit { .. }
+                | Event::KeyDown {
+                    keycode: Some(Keycode::Escape),
+                    ..
+                } => return Some(SimulatorEvent::Quit),
+                Event::KeyDown {
+                    keycode,
+                    keymod,
+                    repeat,
+                    ..
+                } => {
+                    return keycode.map(|valid_keycode| SimulatorEvent::KeyDown {
+                        keycode: valid_keycode,
+                        keymod,
+                        repeat,
+                    })
+                }
+                Event::KeyUp {
+                    keycode,
+                    keymod,
+                    repeat,
+                    ..
+                } => {
+                    return keycode.map(|valid_keycode| SimulatorEvent::KeyUp {
+                        keycode: valid_keycode,
+                        keymod,
+                        repeat,
+                    })
+                }
+                Event::MouseButtonUp {
+                    x, y, mouse_btn, ..
+                } => {
+                    let point = self.output_settings.output_to_display(Point::new(x, y));
+                    return Some(SimulatorEvent::MouseButtonUp { point, mouse_btn });
+                }
+                Event::MouseButtonDown {
+                    x, y, mouse_btn, ..
+                } => {
+                    let point = self.output_settings.output_to_display(Point::new(x, y));
+                    return Some(SimulatorEvent::MouseButtonDown { point, mouse_btn });
+                }
+                Event::MouseMotion { x, y, .. } => {
+                    let point = self.output_settings.output_to_display(Point::new(x, y));
+                    return Some(SimulatorEvent::MouseMove { point });
+                }
+                Event::MouseWheel {
+                    x, y, direction, ..
+                } => {
+                    return Some(SimulatorEvent::MouseWheel {
+                        scroll_delta: Point::new(x, y),
+                        direction,
+                    })
+                }
+                _ => {
+                    // ignore other events and check next event
+                }
+            }
+        }
+
+        None
+    }
+}
+
 pub struct SdlWindow {
     canvas: Canvas<sdl2::video::Window>,
-    event_pump: EventPump,
+    event_pump: RefCell<EventPump>,
     window_texture: SdlWindowTexture,
     size: Size,
 }
 
 impl SdlWindow {
-    pub fn new<C>(
-        display: &SimulatorDisplay<C>,
-        title: &str,
-        output_settings: &OutputSettings,
-    ) -> Self
-    where
-        C: PixelColor + Into<Rgb888>,
-    {
+    pub fn new(title: &str, size: Size) -> Self {
         let sdl_context = sdl2::init().unwrap();
         let video_subsystem = sdl_context.video().unwrap();
-
-        let size = output_settings.framebuffer_size(display);
 
         let window = video_subsystem
             .window(title, size.width, size.height)
@@ -107,7 +178,7 @@ impl SdlWindow {
 
         Self {
             canvas,
-            event_pump,
+            event_pump: RefCell::new(event_pump),
             window_texture,
             size,
         }
@@ -133,63 +204,11 @@ impl SdlWindow {
 
     /// Handle events
     /// Return an iterator of all captured SimulatorEvent
-    pub fn events(
-        &mut self,
-        output_settings: &OutputSettings,
-    ) -> impl Iterator<Item = SimulatorEvent> + '_ {
-        let output_settings = output_settings.clone();
-        self.event_pump
-            .poll_iter()
-            .filter_map(move |event| match event {
-                Event::Quit { .. }
-                | Event::KeyDown {
-                    keycode: Some(Keycode::Escape),
-                    ..
-                } => Some(SimulatorEvent::Quit),
-                Event::KeyDown {
-                    keycode,
-                    keymod,
-                    repeat,
-                    ..
-                } => keycode.map(|valid_keycode| SimulatorEvent::KeyDown {
-                    keycode: valid_keycode,
-                    keymod,
-                    repeat,
-                }),
-                Event::KeyUp {
-                    keycode,
-                    keymod,
-                    repeat,
-                    ..
-                } => keycode.map(|valid_keycode| SimulatorEvent::KeyUp {
-                    keycode: valid_keycode,
-                    keymod,
-                    repeat,
-                }),
-                Event::MouseButtonUp {
-                    x, y, mouse_btn, ..
-                } => {
-                    let point = output_settings.output_to_display(Point::new(x, y));
-                    Some(SimulatorEvent::MouseButtonUp { point, mouse_btn })
-                }
-                Event::MouseButtonDown {
-                    x, y, mouse_btn, ..
-                } => {
-                    let point = output_settings.output_to_display(Point::new(x, y));
-                    Some(SimulatorEvent::MouseButtonDown { point, mouse_btn })
-                }
-                Event::MouseWheel {
-                    x, y, direction, ..
-                } => Some(SimulatorEvent::MouseWheel {
-                    scroll_delta: Point::new(x, y),
-                    direction,
-                }),
-                Event::MouseMotion { x, y, .. } => {
-                    let point = output_settings.output_to_display(Point::new(x, y));
-                    Some(SimulatorEvent::MouseMove { point })
-                }
-                _ => None,
-            })
+    pub fn events(&self, output_settings: &OutputSettings) -> SimulatorEventsIter<'_> {
+        SimulatorEventsIter {
+            event_pump: self.event_pump.borrow_mut(),
+            output_settings: output_settings.clone(),
+        }
     }
 }
 

@@ -1,8 +1,8 @@
-use crate::{display::SimulatorDisplay, theme::BinaryColorTheme};
+use crate::theme::BinaryColorTheme;
 use embedded_graphics::prelude::*;
 
 /// Output settings.
-#[derive(Debug, PartialEq, Eq, Clone)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy)]
 pub struct OutputSettings {
     /// Pixel scale.
     pub scale: u32,
@@ -10,23 +10,6 @@ pub struct OutputSettings {
     pub pixel_spacing: u32,
     /// Binary color theme.
     pub theme: BinaryColorTheme,
-    /// Maximum frames per second shown in the window.
-    pub max_fps: u32,
-}
-
-impl OutputSettings {
-    /// Calculates the size of the framebuffer required to display the scaled display.
-    pub(crate) fn framebuffer_size<C>(&self, display: &SimulatorDisplay<C>) -> Size
-    where
-        C: PixelColor,
-    {
-        let width = display.size().width;
-        let height = display.size().height;
-        let output_width = width * self.scale + width.saturating_sub(1) * self.pixel_spacing;
-        let output_height = height * self.scale + height.saturating_sub(1) * self.pixel_spacing;
-
-        Size::new(output_width, output_height)
-    }
 }
 
 #[cfg(feature = "with-sdl")]
@@ -54,7 +37,6 @@ pub struct OutputSettingsBuilder {
     scale: Option<u32>,
     pixel_spacing: Option<u32>,
     theme: BinaryColorTheme,
-    max_fps: Option<u32>,
 }
 
 impl OutputSettingsBuilder {
@@ -112,20 +94,12 @@ impl OutputSettingsBuilder {
         self
     }
 
-    /// Sets the FPS limit of the window.
-    pub fn max_fps(mut self, max_fps: u32) -> Self {
-        self.max_fps = Some(max_fps);
-
-        self
-    }
-
     /// Builds the output settings.
     pub fn build(self) -> OutputSettings {
         OutputSettings {
             scale: self.scale.unwrap_or(1),
             pixel_spacing: self.pixel_spacing.unwrap_or(0),
             theme: self.theme,
-            max_fps: self.max_fps.unwrap_or(60),
         }
     }
 }

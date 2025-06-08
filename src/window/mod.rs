@@ -17,7 +17,39 @@ use crate::{
 mod sdl_window;
 
 #[cfg(feature = "with-sdl")]
-pub use sdl_window::{SdlWindow, SimulatorEvent};
+pub use sdl_window::{SdlWindow, SimulatorEvent, SimulatorEventsIter};
+
+#[cfg(feature = "with-sdl")]
+mod multi_window;
+
+#[cfg(feature = "with-sdl")]
+pub use multi_window::MultiWindow;
+
+pub(crate) struct FpsLimiter {
+    max_fps: u32,
+    frame_start: Instant,
+}
+
+impl FpsLimiter {
+    pub(crate) fn new() -> Self {
+        Self {
+            max_fps: 60,
+            frame_start: Instant::now(),
+        }
+    }
+
+    fn desired_loop_duration(&self) -> Duration {
+        Duration::from_secs_f32(1.0 / self.max_fps as f32)
+    }
+
+    fn sleep(&mut self) {
+        let sleep_duration = (self.frame_start + self.desired_loop_duration())
+            .saturating_duration_since(Instant::now());
+        thread::sleep(sleep_duration);
+
+        self.frame_start = Instant::now();
+    }
+}
 
 /// Simulator window
 #[allow(dead_code)]
@@ -27,8 +59,7 @@ pub struct Window {
     sdl_window: Option<SdlWindow>,
     title: String,
     output_settings: OutputSettings,
-    desired_loop_duration: Duration,
-    frame_start: Instant,
+    fps_limiter: FpsLimiter,
 }
 
 impl Window {
@@ -40,8 +71,7 @@ impl Window {
             sdl_window: None,
             title: String::from(title),
             output_settings: output_settings.clone(),
-            desired_loop_duration: Duration::from_millis(1000 / output_settings.max_fps as u64),
-            frame_start: Instant::now(),
+            fps_limiter: FpsLimiter::new(),
         }
     }
 
@@ -118,27 +148,24 @@ impl Window {
 
         #[cfg(feature = "with-sdl")]
         {
+            let size = display.output_size(&self.output_settings);
+
             if self.framebuffer.is_none() {
-                self.framebuffer = Some(OutputImage::new(display, &self.output_settings));
+                self.framebuffer = Some(OutputImage::new(size));
             }
 
             if self.sdl_window.is_none() {
-                self.sdl_window = Some(SdlWindow::new(display, &self.title, &self.output_settings));
+                self.sdl_window = Some(SdlWindow::new(&self.title, size));
             }
 
             let framebuffer = self.framebuffer.as_mut().unwrap();
             let sdl_window = self.sdl_window.as_mut().unwrap();
 
-            framebuffer.update(display);
+            framebuffer.draw_display(display, Point::zero(), &self.output_settings);
             sdl_window.update(framebuffer);
         }
 
-        thread::sleep(
-            (self.frame_start + self.desired_loop_duration)
-                .saturating_duration_since(Instant::now()),
-        );
-
-        self.frame_start = Instant::now();
+        self.fps_limiter.sleep();
     }
 
     /// Shows a static display.
@@ -160,16 +187,23 @@ impl Window {
         }
     }
 
-    /// Returns an iterator of all captured SimulatorEvents.
+    /// Returns an iterator of all captured simulator events.
     ///
     /// # Panics
     ///
-    /// Panics if called before [`update`](Self::update) is called at least once.
+    /// Panics if called before [`update`](Self::update) is called at least
+    /// once. Also panics if multiple instances of the iterator are used at the
+    /// same time.
     #[cfg(feature = "with-sdl")]
-    pub fn events(&mut self) -> impl Iterator<Item = SimulatorEvent> + '_ {
+    pub fn events(&self) -> SimulatorEventsIter<'_> {
         self.sdl_window
-            .as_mut()
+            .as_ref()
             .unwrap()
             .events(&self.output_settings)
+    }
+
+    /// Sets the FPS limit of the window.
+    pub fn set_max_fps(&mut self, max_fps: u32) {
+        self.fps_limiter.max_fps = max_fps;
     }
 }

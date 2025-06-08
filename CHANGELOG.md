@@ -10,10 +10,15 @@
 
 - [#63](https://github.com/embedded-graphics/simulator/pull/63) Added support for custom binary color themes (`BinaryColorTheme::Custom`).
 - [#62](https://github.com/embedded-graphics/simulator/pull/62) Added an SDL based audio example (sdl-audio.rs).
+- [#66](https://github.com/embedded-graphics/simulator/pull/66) Added `MultiWindow` to show multiple displays in one window.
+- [#66](https://github.com/embedded-graphics/simulator/pull/66) Added `SimulatorDisplay::output_size`.
 
 ### Changed
 
 - **(breaking)** [#65](https://github.com/embedded-graphics/simulator/pull/65) Bump Minimum Supported Rust Version (MSRV) to latest stable.
+- **(breaking)** [#66](https://github.com/embedded-graphics/simulator/pull/66) `OutputSettings::max_fps` has been removed, use `Window::set_max_fps` or `MultiWindow::set_max_fps` instead.
+- **(breaking)** [#66](https://github.com/embedded-graphics/simulator/pull/66) Renamed `OutputImage::update` to `OutputImage::draw_display` and added `position` parameter.
+- [#66](https://github.com/embedded-graphics/simulator/pull/66) Changed `Window::events` to take `&self` instead of `&mut self`.
 
 ## [0.7.0] - 2024-09-10
 
