@@ -19,6 +19,7 @@
 - **(breaking)** [#66](https://github.com/embedded-graphics/simulator/pull/66) `OutputSettings::max_fps` has been removed, use `Window::set_max_fps` or `MultiWindow::set_max_fps` instead.
 - **(breaking)** [#66](https://github.com/embedded-graphics/simulator/pull/66) Renamed `OutputImage::update` to `OutputImage::draw_display` and added `position` parameter.
 - [#66](https://github.com/embedded-graphics/simulator/pull/66) Changed `Window::events` to take `&self` instead of `&mut self`.
+- **(breaking)** [#69](https://github.com/embedded-graphics/simulator/pull/69) Bump `sdl2` crate dependency to 0.38.0.
 
 ## [0.7.0] - 2024-09-10
 
