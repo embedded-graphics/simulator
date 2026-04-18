@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, num::NonZeroU32};
 
 use embedded_graphics::{pixelcolor::Rgb888, prelude::*};
 
@@ -125,9 +125,9 @@ impl MultiWindow {
         display.bounding_box().contains(p).then_some(p)
     }
 
-    /// Sets the FPS limit of the window.
+    /// Changes the FPS limit of the window. Set to `0` to disable the FPS limiter.
     pub fn set_max_fps(&mut self, max_fps: u32) {
-        self.fps_limiter.max_fps = max_fps;
+        self.fps_limiter.max_fps = NonZeroU32::new(max_fps);
     }
 }
 

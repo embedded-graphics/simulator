@@ -10,6 +10,10 @@
 
 - **(breaking)** [#71](https://github.com/embedded-graphics/simulator/pull/71) Added support for non-square pixels.
 
+### Changed
+
+- [#72](https://github.com/embedded-graphics/simulator/pull/72) `set_max_fps` now accepts `0` to disable the FPS limiter.
+
 ### Fixed
 
 - [#71](https://github.com/embedded-graphics/simulator/pull/71) Fixed pixel spacing for unscaled outputs.
